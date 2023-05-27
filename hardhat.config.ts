@@ -91,6 +91,14 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ['staging'],
     },
+    sepolia: {
+      url: `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      accounts,
+      chainId: 11155111,
+      live: true,
+      saveDeployments: true,
+      tags: ['staging'],
+    },
     kovan: {
       url: `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts,
@@ -241,7 +249,7 @@ const config: HardhatUserConfig = {
     }
   },
   etherscan: {
-    apiKey: MUMBAI_API_KEY,
+    apiKey: ETHERSCAN_API_KEY,
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS ? true : false,
