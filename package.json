@@ -30,6 +30,7 @@
     "@typechain/ethers-v5": "^10.2.1",
     "@typechain/hardhat": "^6.1.6",
     "dotenv": "^16.0.3",
+    "ethers": "^6.4.0",
     "hardhat-deploy": "^0.11.29"
   }
 }
