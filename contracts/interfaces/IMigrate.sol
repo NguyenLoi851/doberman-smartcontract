@@ -7,7 +7,7 @@ abstract contract IMigrate {
 
   function unpause() public virtual;
 
-  function updateGoldfinchConfig() external virtual;
+  function updateDobermanConfig() external virtual;
 
   function grantRole(bytes32 role, address assignee) external virtual;
 

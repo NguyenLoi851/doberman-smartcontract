@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "../external/ERC721PresetMinterPauserAutoId.sol";
 import "../interfaces/IERC20withDec.sol";
 import "../interfaces/ISeniorPool.sol";
-import "../protocol/core/GoldfinchConfig.sol";
+import "../protocol/core/DobermanConfig.sol";
 import "../protocol/core/ConfigHelper.sol";
 import "../protocol/core/BaseUpgradeablePausable.sol";
 
@@ -20,7 +20,7 @@ import "../library/StakingRewardsVesting.sol";
 contract StakingRewards is ERC721PresetMinterPauserAutoIdUpgradeSafe, ReentrancyGuardUpgradeable {
   using SafeMath for uint256;
   using SafeERC20 for IERC20withDec;
-  using ConfigHelper for GoldfinchConfig;
+  using ConfigHelper for DobermanConfig;
   using Counters for Counters.Counter;
 
   using StakingRewardsVesting for StakingRewardsVesting.Rewards;
@@ -65,7 +65,7 @@ contract StakingRewards is ERC721PresetMinterPauserAutoIdUpgradeSafe, Reentrancy
 
   bytes32 public constant OWNER_ROLE = keccak256("OWNER_ROLE");
 
-  GoldfinchConfig public config;
+  DobermanConfig public config;
 
   /// @notice The block timestamp when rewards were last checkpointed
   uint256 public lastUpdateTime;
@@ -116,10 +116,10 @@ contract StakingRewards is ERC721PresetMinterPauserAutoIdUpgradeSafe, Reentrancy
   mapping(uint256 => StakedPosition) public positions;
 
   // solhint-disable-next-line func-name-mixedcase
-  function __initialize__(address owner, GoldfinchConfig _config) external initializer {
+  function __initialize__(address owner, DobermanConfig _config) external initializer {
     __Context_init_unchained();
     __ERC165_init_unchained();
-    __ERC721_init_unchained("Goldfinch V2 LP Staking Tokens", "GFI-V2-LPS");
+    __ERC721_init_unchained("Doberman V2 LP Staking Tokens", "GFI-V2-LPS");
     __ERC721Pausable_init_unchained();
     __AccessControl_init_unchained();
     __Pausable_init_unchained();
@@ -660,9 +660,9 @@ contract StakingRewards is ERC721PresetMinterPauserAutoIdUpgradeSafe, Reentrancy
     emit VestingScheduleUpdated(msg.sender, vestingLength);
   }
 
-  function updateGoldfinchConfig() external onlyAdmin {
-    config = GoldfinchConfig(config.configAddress());
-    emit GoldfinchConfigUpdated(_msgSender(), address(config));
+  function updateDobermanConfig() external onlyAdmin {
+    config = DobermanConfig(config.configAddress());
+    emit DobermanConfigUpdated(_msgSender(), address(config));
   }
 
   /* ========== MODIFIERS ========== */
@@ -735,5 +735,5 @@ contract StakingRewards is ERC721PresetMinterPauserAutoIdUpgradeSafe, Reentrancy
     uint256[] amounts
   );
   event RewardPaid(address indexed user, uint256 indexed tokenId, uint256 reward);
-  event GoldfinchConfigUpdated(address indexed who, address configAddress);
+  event DobermanConfigUpdated(address indexed who, address configAddress);
 }

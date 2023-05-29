@@ -10,8 +10,8 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /**
  * @title GFI
- * @notice GFI is Goldfinch's governance token.
- * @author Goldfinch
+ * @notice GFI is Doberman's governance token.
+ * @author Doberman
  */
 contract GFI is Context, AccessControl, ERC20Burnable, ERC20Pausable {
   using SafeMath for uint256;

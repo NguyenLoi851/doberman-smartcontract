@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.4;
 
-interface IGoldfinchFactory {
+interface IDobermanFactory {
   function createCreditLine() external returns (address);
 
   function createBorrower(address owner) external returns (address);
@@ -29,5 +29,5 @@ interface IGoldfinchFactory {
     uint256[] calldata _allowedUIDTypes
   ) external returns (address);
 
-  function updateGoldfinchConfig() external;
+  function updateDobermanConfig() external;
 }

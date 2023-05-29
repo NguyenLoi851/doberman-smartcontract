@@ -28,8 +28,8 @@ import "../interfaces/IBackerRewards.sol";
 // increase that PoolToken's rewardsClaimed, and transfer the owner the gfi
 
 contract BackerRewards is IBackerRewards, BaseUpgradeablePausable, SafeERC20Transfer {
-  GoldfinchConfig public config;
-  using ConfigHelper for GoldfinchConfig;
+  DobermanConfig public config;
+  using ConfigHelper for DobermanConfig;
   using SafeMath for uint256;
 
   struct BackerRewardsInfo {
@@ -51,7 +51,7 @@ contract BackerRewards is IBackerRewards, BaseUpgradeablePausable, SafeERC20Tran
   mapping(address => BackerRewardsInfo) public pools; // pool.address -> BackerRewardsInfo
 
   // solhint-disable-next-line func-name-mixedcase
-  function __initialize__(address owner, GoldfinchConfig _config) public initializer {
+  function __initialize__(address owner, DobermanConfig _config) public initializer {
     require(owner != address(0) && address(_config) != address(0), "Owner and config addresses cannot be empty");
     __BaseUpgradeablePausable__init(owner);
     config = _config;
@@ -309,9 +309,9 @@ contract BackerRewards is IBackerRewards, BaseUpgradeablePausable, SafeERC20Tran
     return amount.div(mantissa().div(usdcMantissa()));
   }
 
-  function updateGoldfinchConfig() external onlyAdmin {
-    config = GoldfinchConfig(config.configAddress());
-    emit GoldfinchConfigUpdated(_msgSender(), address(config));
+  function updateDobermanConfig() external onlyAdmin {
+    config = DobermanConfig(config.configAddress());
+    emit DobermanConfigUpdated(_msgSender(), address(config));
   }
 
   /* ======== MODIFIERS  ======== */
@@ -322,7 +322,7 @@ contract BackerRewards is IBackerRewards, BaseUpgradeablePausable, SafeERC20Tran
   }
 
   /* ======== EVENTS ======== */
-  event GoldfinchConfigUpdated(address indexed who, address configAddress);
+  event DobermanConfigUpdated(address indexed who, address configAddress);
   event BackerRewardsClaimed(address indexed owner, uint256 indexed tokenId, uint256 amount);
   event BackerRewardsSetTotalRewards(address indexed owner, uint256 totalRewards, uint256 totalRewardPercentOfTotalGFI);
   event BackerRewardsSetTotalInterestReceived(address indexed owner, uint256 totalInterestReceived);

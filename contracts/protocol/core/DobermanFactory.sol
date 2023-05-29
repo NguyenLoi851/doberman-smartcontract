@@ -2,33 +2,33 @@
 
 pragma solidity 0.8.4;
 
-import "./GoldfinchConfig.sol";
+import "./DobermanConfig.sol";
 import "./BaseUpgradeablePausable.sol";
 import "../../interfaces/IBorrower.sol";
 import "../../interfaces/ITranchedPool.sol";
 import "./ConfigHelper.sol";
 
 /**
- * @title GoldfinchFactory
+ * @title DobermanFactory
  * @notice Contract that allows us to create other contracts, such as CreditLines and BorrowerContracts
- *  Note GoldfinchFactory is a legacy name. More properly this can be considered simply the GoldfinchFactory
- * @author Goldfinch
+ *  Note DobermanFactory is a legacy name. More properly this can be considered simply the DobermanFactory
+ * @author Doberman
  */
 
-contract GoldfinchFactory is BaseUpgradeablePausable {
-  GoldfinchConfig public config;
+contract DobermanFactory is BaseUpgradeablePausable {
+  DobermanConfig public config;
 
   /// Role to allow for pool creation
   bytes32 public constant BORROWER_ROLE = keccak256("BORROWER_ROLE");
 
-  using ConfigHelper for GoldfinchConfig;
+  using ConfigHelper for DobermanConfig;
 
   event BorrowerCreated(address indexed borrower, address indexed owner);
   event PoolCreated(address indexed pool, address indexed borrower);
-  event GoldfinchConfigUpdated(address indexed who, address configAddress);
+  event DobermanConfigUpdated(address indexed who, address configAddress);
   event CreditLineCreated(address indexed creditLine);
 
-  function initialize(address owner, GoldfinchConfig _config) public initializer {
+  function initialize(address owner, DobermanConfig _config) public initializer {
     require(owner != address(0) && address(_config) != address(0), "Owner and config addresses cannot be empty");
     __BaseUpgradeablePausable__init(owner);
     config = _config;
@@ -151,9 +151,9 @@ contract GoldfinchFactory is BaseUpgradeablePausable {
     return pool;
   }
 
-  function updateGoldfinchConfig() external onlyAdmin {
-    config = GoldfinchConfig(config.configAddress());
-    emit GoldfinchConfigUpdated(msg.sender, address(config));
+  function updateDobermanConfig() external onlyAdmin {
+    config = DobermanConfig(config.configAddress());
+    emit DobermanConfigUpdated(msg.sender, address(config));
   }
 
   // Stolen from:

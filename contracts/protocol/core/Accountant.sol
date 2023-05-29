@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 /**
  * @title The Accountant
  * @notice Library for handling key financial calculations, such as interest and principal accrual.
- * @author Goldfinch
+ * @author Doberman
  */
 
 library Accountant {

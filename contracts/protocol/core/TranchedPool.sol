@@ -10,15 +10,15 @@ import "../../interfaces/ITranchedPool.sol";
 import "../../interfaces/IERC20withDec.sol";
 import "../../interfaces/IV2CreditLine.sol";
 import "../../interfaces/IPoolTokens.sol";
-import "./GoldfinchConfig.sol";
+import "./DobermanConfig.sol";
 import "./BaseUpgradeablePausable.sol";
 import "./ConfigHelper.sol";
 import "../../library/SafeERC20Transfer.sol";
 import "./TranchingLogic.sol";
 
 contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transfer {
-  GoldfinchConfig public config;
-  using ConfigHelper for GoldfinchConfig;
+  DobermanConfig public config;
+  using ConfigHelper for DobermanConfig;
   using TranchingLogic for PoolSlice;
   using TranchingLogic for TrancheInfo;
   using SafeMath for uint256;
@@ -46,7 +46,7 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
     uint256 principalWithdrawn
   );
 
-  event GoldfinchConfigUpdated(address indexed who, address configAddress);
+  event DobermanConfigUpdated(address indexed who, address configAddress);
   event TranchedPoolAssessed(address indexed pool);
   event PaymentApplied(
     address indexed payer,
@@ -90,7 +90,7 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
   ) public override initializer {
     require(address(_config) != address(0) && address(_borrower) != address(0), "Config/borrower invalid");
 
-    config = GoldfinchConfig(_config);
+    config = DobermanConfig(_config);
     address owner = config.protocolAdminAddress();
     require(owner != address(0), "Owner invalid");
     __BaseUpgradeablePausable__init(owner);
@@ -341,12 +341,12 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
   }
 
   /**
-   * @notice Migrates to a new goldfinch config address
+   * @notice Migrates to a new Doberman config address
    */
-  function updateGoldfinchConfig() external onlyAdmin {
-    config = GoldfinchConfig(config.configAddress());
-    creditLine.updateGoldfinchConfig();
-    emit GoldfinchConfigUpdated(msg.sender, address(config));
+  function updateDobermanConfig() external onlyAdmin {
+    config = DobermanConfig(config.configAddress());
+    creditLine.updateDobermanConfig();
+    emit DobermanConfigUpdated(msg.sender, address(config));
   }
 
   /**
@@ -700,7 +700,7 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
     uint256 _lateFeeApr,
     uint256 _principalGracePeriodInDays
   ) internal {
-    address _creditLine = config.getGoldfinchFactory().createCreditLine();
+    address _creditLine = config.getDobermanFactory().createCreditLine();
     creditLine = IV2CreditLine(_creditLine);
     creditLine.initialize(
       address(config),

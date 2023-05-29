@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.4;
 
-import "./GoldfinchConfig.sol";
+import "./DobermanConfig.sol";
 import "../../interfaces/IPool.sol";
 import "../../interfaces/IFidu.sol";
 import "../../interfaces/ISeniorPool.sol";
@@ -12,178 +12,178 @@ import "../../interfaces/IERC20withDec.sol";
 import "../../interfaces/ICUSDCContract.sol";
 import "../../interfaces/IPoolTokens.sol";
 import "../../interfaces/IBackerRewards.sol";
-import "../../interfaces/IGoldfinchFactory.sol";
+import "../../interfaces/IDobermanFactory.sol";
 import "../../interfaces/IGo.sol";
 
 /**
  * @title ConfigHelper
  * @notice A convenience library for getting easy access to other contracts and constants within the
- *  protocol, through the use of the GoldfinchConfig contract
- * @author Goldfinch
+ *  protocol, through the use of the DobermanConfig contract
+ * @author Doberman
  */
 
 library ConfigHelper {
-  function getPool(GoldfinchConfig config) internal view returns (IPool) {
+  function getPool(DobermanConfig config) internal view returns (IPool) {
     return IPool(poolAddress(config));
   }
 
-  function getSeniorPool(GoldfinchConfig config) internal view returns (ISeniorPool) {
+  function getSeniorPool(DobermanConfig config) internal view returns (ISeniorPool) {
     return ISeniorPool(seniorPoolAddress(config));
   }
 
-  function getSeniorPoolStrategy(GoldfinchConfig config) internal view returns (ISeniorPoolStrategy) {
+  function getSeniorPoolStrategy(DobermanConfig config) internal view returns (ISeniorPoolStrategy) {
     return ISeniorPoolStrategy(seniorPoolStrategyAddress(config));
   }
 
-  function getUSDC(GoldfinchConfig config) internal view returns (IERC20withDec) {
+  function getUSDC(DobermanConfig config) internal view returns (IERC20withDec) {
     return IERC20withDec(usdcAddress(config));
   }
 
-  function getCreditDesk(GoldfinchConfig config) internal view returns (ICreditDesk) {
+  function getCreditDesk(DobermanConfig config) internal view returns (ICreditDesk) {
     return ICreditDesk(creditDeskAddress(config));
   }
 
-  function getFidu(GoldfinchConfig config) internal view returns (IFidu) {
+  function getFidu(DobermanConfig config) internal view returns (IFidu) {
     return IFidu(fiduAddress(config));
   }
 
-  function getCUSDCContract(GoldfinchConfig config) internal view returns (ICUSDCContract) {
+  function getCUSDCContract(DobermanConfig config) internal view returns (ICUSDCContract) {
     return ICUSDCContract(cusdcContractAddress(config));
   }
 
-  function getPoolTokens(GoldfinchConfig config) internal view returns (IPoolTokens) {
+  function getPoolTokens(DobermanConfig config) internal view returns (IPoolTokens) {
     return IPoolTokens(poolTokensAddress(config));
   }
 
-  function getBackerRewards(GoldfinchConfig config) internal view returns (IBackerRewards) {
+  function getBackerRewards(DobermanConfig config) internal view returns (IBackerRewards) {
     return IBackerRewards(backerRewardsAddress(config));
   }
 
-  function getGoldfinchFactory(GoldfinchConfig config) internal view returns (IGoldfinchFactory) {
-    return IGoldfinchFactory(goldfinchFactoryAddress(config));
+  function getDobermanFactory(DobermanConfig config) internal view returns (IDobermanFactory) {
+    return IDobermanFactory(DobermanFactoryAddress(config));
   }
 
-  function getGFI(GoldfinchConfig config) internal view returns (IERC20withDec) {
+  function getGFI(DobermanConfig config) internal view returns (IERC20withDec) {
     return IERC20withDec(gfiAddress(config));
   }
 
-  function getGo(GoldfinchConfig config) internal view returns (IGo) {
+  function getGo(DobermanConfig config) internal view returns (IGo) {
     return IGo(goAddress(config));
   }
 
-  function oneInchAddress(GoldfinchConfig config) internal view returns (address) {
+  function oneInchAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.OneInch));
   }
 
-  function creditLineImplementationAddress(GoldfinchConfig config) internal view returns (address) {
+  function creditLineImplementationAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.CreditLineImplementation));
   }
 
-  function trustedForwarderAddress(GoldfinchConfig config) internal view returns (address) {
+  function trustedForwarderAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.TrustedForwarder));
   }
 
-  function configAddress(GoldfinchConfig config) internal view returns (address) {
-    return config.getAddress(uint256(ConfigOptions.Addresses.GoldfinchConfig));
+  function configAddress(DobermanConfig config) internal view returns (address) {
+    return config.getAddress(uint256(ConfigOptions.Addresses.DobermanConfig));
   }
 
-  function poolAddress(GoldfinchConfig config) internal view returns (address) {
+  function poolAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.Pool));
   }
 
-  function poolTokensAddress(GoldfinchConfig config) internal view returns (address) {
+  function poolTokensAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.PoolTokens));
   }
 
-  function backerRewardsAddress(GoldfinchConfig config) internal view returns (address) {
+  function backerRewardsAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.BackerRewards));
   }
 
-  function seniorPoolAddress(GoldfinchConfig config) internal view returns (address) {
+  function seniorPoolAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.SeniorPool));
   }
 
-  function seniorPoolStrategyAddress(GoldfinchConfig config) internal view returns (address) {
+  function seniorPoolStrategyAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.SeniorPoolStrategy));
   }
 
-  function creditDeskAddress(GoldfinchConfig config) internal view returns (address) {
+  function creditDeskAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.CreditDesk));
   }
 
-  function goldfinchFactoryAddress(GoldfinchConfig config) internal view returns (address) {
-    return config.getAddress(uint256(ConfigOptions.Addresses.GoldfinchFactory));
+  function DobermanFactoryAddress(DobermanConfig config) internal view returns (address) {
+    return config.getAddress(uint256(ConfigOptions.Addresses.DobermanFactory));
   }
 
-  function gfiAddress(GoldfinchConfig config) internal view returns (address) {
+  function gfiAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.GFI));
   }
 
-  function fiduAddress(GoldfinchConfig config) internal view returns (address) {
+  function fiduAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.Fidu));
   }
 
-  function cusdcContractAddress(GoldfinchConfig config) internal view returns (address) {
+  function cusdcContractAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.CUSDCContract));
   }
 
-  function usdcAddress(GoldfinchConfig config) internal view returns (address) {
+  function usdcAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.USDC));
   }
 
-  function tranchedPoolAddress(GoldfinchConfig config) internal view returns (address) {
+  function tranchedPoolAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.TranchedPoolImplementation));
   }
 
-  function migratedTranchedPoolAddress(GoldfinchConfig config) internal view returns (address) {
+  function migratedTranchedPoolAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.MigratedTranchedPoolImplementation));
   }
 
-  function reserveAddress(GoldfinchConfig config) internal view returns (address) {
+  function reserveAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.TreasuryReserve));
   }
 
-  function protocolAdminAddress(GoldfinchConfig config) internal view returns (address) {
+  function protocolAdminAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.ProtocolAdmin));
   }
 
-  function borrowerImplementationAddress(GoldfinchConfig config) internal view returns (address) {
+  function borrowerImplementationAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.BorrowerImplementation));
   }
 
-  function goAddress(GoldfinchConfig config) internal view returns (address) {
+  function goAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.Go));
   }
 
-  function stakingRewardsAddress(GoldfinchConfig config) internal view returns (address) {
+  function stakingRewardsAddress(DobermanConfig config) internal view returns (address) {
     return config.getAddress(uint256(ConfigOptions.Addresses.StakingRewards));
   }
 
-  function getReserveDenominator(GoldfinchConfig config) internal view returns (uint256) {
+  function getReserveDenominator(DobermanConfig config) internal view returns (uint256) {
     return config.getNumber(uint256(ConfigOptions.Numbers.ReserveDenominator));
   }
 
-  function getWithdrawFeeDenominator(GoldfinchConfig config) internal view returns (uint256) {
+  function getWithdrawFeeDenominator(DobermanConfig config) internal view returns (uint256) {
     return config.getNumber(uint256(ConfigOptions.Numbers.WithdrawFeeDenominator));
   }
 
-  function getLatenessGracePeriodInDays(GoldfinchConfig config) internal view returns (uint256) {
+  function getLatenessGracePeriodInDays(DobermanConfig config) internal view returns (uint256) {
     return config.getNumber(uint256(ConfigOptions.Numbers.LatenessGracePeriodInDays));
   }
 
-  function getLatenessMaxDays(GoldfinchConfig config) internal view returns (uint256) {
+  function getLatenessMaxDays(DobermanConfig config) internal view returns (uint256) {
     return config.getNumber(uint256(ConfigOptions.Numbers.LatenessMaxDays));
   }
 
-  function getDrawdownPeriodInSeconds(GoldfinchConfig config) internal view returns (uint256) {
+  function getDrawdownPeriodInSeconds(DobermanConfig config) internal view returns (uint256) {
     return config.getNumber(uint256(ConfigOptions.Numbers.DrawdownPeriodInSeconds));
   }
 
-  function getTransferRestrictionPeriodInDays(GoldfinchConfig config) internal view returns (uint256) {
+  function getTransferRestrictionPeriodInDays(DobermanConfig config) internal view returns (uint256) {
     return config.getNumber(uint256(ConfigOptions.Numbers.TransferRestrictionPeriodInDays));
   }
 
-  function getLeverageRatio(GoldfinchConfig config) internal view returns (uint256) {
+  function getLeverageRatio(DobermanConfig config) internal view returns (uint256) {
     return config.getNumber(uint256(ConfigOptions.Numbers.LeverageRatio));
   }
 }

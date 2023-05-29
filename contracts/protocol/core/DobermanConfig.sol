@@ -3,20 +3,20 @@
 pragma solidity 0.8.4;
 
 import "./BaseUpgradeablePausable.sol";
-import "../../interfaces/IGoldfinchConfig.sol";
+import "../../interfaces/IDobermanConfig.sol";
 import "./ConfigOptions.sol";
 
 /**
- * @title GoldfinchConfig
+ * @title DobermanConfig
  * @notice This contract stores mappings of useful "protocol config state", giving a central place
  *  for all other contracts to access it. For example, the TransactionLimit, or the PoolAddress. These config vars
  *  are enumerated in the `ConfigOptions` library, and can only be changed by admins of the protocol.
  *  Note: While this inherits from BaseUpgradeablePausable, it is not deployed as an upgradeable contract (this
  *    is mostly to save gas costs of having each call go through a proxy)
- * @author Goldfinch
+ * @author Doberman
  */
 
-contract GoldfinchConfig is BaseUpgradeablePausable {
+contract DobermanConfig is BaseUpgradeablePausable {
   bytes32 public constant GO_LISTER_ROLE = keccak256("GO_LISTER_ROLE");
 
   mapping(uint256 => address) public addresses;
@@ -83,8 +83,8 @@ contract GoldfinchConfig is BaseUpgradeablePausable {
     addresses[key] = newAddress;
   }
 
-  function setGoldfinchConfig(address newAddress) public onlyAdmin {
-    uint256 key = uint256(ConfigOptions.Addresses.GoldfinchConfig);
+  function setDobermanConfig(address newAddress) public onlyAdmin {
+    uint256 key = uint256(ConfigOptions.Addresses.DobermanConfig);
     emit AddressUpdated(msg.sender, key, addresses[key], newAddress);
     addresses[key] = newAddress;
   }
@@ -95,7 +95,7 @@ contract GoldfinchConfig is BaseUpgradeablePausable {
     uint256 addressesLength
   ) public onlyAdmin {
     require(!valuesInitialized, "Already initialized values");
-    IGoldfinchConfig initialConfig = IGoldfinchConfig(_initialConfig);
+    IDobermanConfig initialConfig = IDobermanConfig(_initialConfig);
     for (uint256 i = 0; i < numbersLength; i++) {
       setNumber(i, initialConfig.getNumber(i));
     }

@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.4;
 
-interface IGoldfinchConfig {
+interface IDobermanConfig {
   function getNumber(uint256 index) external returns (uint256);
 
   function getAddress(uint256 index) external returns (address);

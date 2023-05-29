@@ -12,14 +12,14 @@ import "./BaseUpgradeablePausable.sol";
 import "./ConfigHelper.sol";
 
 /**
- * @title Goldfinch's SeniorPool contract
+ * @title Doberman's SeniorPool contract
  * @notice Main entry point for senior LPs (a.k.a. capital providers)
  *  Automatically invests across borrower pools using an adjustable strategy.
- * @author Goldfinch
+ * @author Doberman
  */
 contract SeniorPool is BaseUpgradeablePausable, ISeniorPool {
-  GoldfinchConfig public config;
-  using ConfigHelper for GoldfinchConfig;
+  DobermanConfig public config;
+  using ConfigHelper for DobermanConfig;
   using SafeMath for uint256;
 
   uint256 public compoundBalance;
@@ -35,9 +35,9 @@ contract SeniorPool is BaseUpgradeablePausable, ISeniorPool {
   event InvestmentMadeInSenior(address indexed tranchedPool, uint256 amount);
   event InvestmentMadeInJunior(address indexed tranchedPool, uint256 amount);
 
-  event GoldfinchConfigUpdated(address indexed who, address configAddress);
+  event DobermanConfigUpdated(address indexed who, address configAddress);
 
-  function initialize(address owner, GoldfinchConfig _config) public initializer {
+  function initialize(address owner, DobermanConfig _config) public initializer {
     require(owner != address(0) && address(_config) != address(0), "Owner and config addresses cannot be empty");
 
     __BaseUpgradeablePausable__init(owner);
@@ -130,11 +130,11 @@ contract SeniorPool is BaseUpgradeablePausable, ISeniorPool {
   }
 
   /**
-   * @notice Migrates to a new goldfinch config address
+   * @notice Migrates to a new Doberman config address
    */
-  function updateGoldfinchConfig() external onlyAdmin {
-    config = GoldfinchConfig(config.configAddress());
-    emit GoldfinchConfigUpdated(msg.sender, address(config));
+  function updateDobermanConfig() external onlyAdmin {
+    config = DobermanConfig(config.configAddress());
+    emit DobermanConfigUpdated(msg.sender, address(config));
   }
 
   /**

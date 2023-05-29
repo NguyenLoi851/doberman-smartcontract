@@ -4,15 +4,15 @@ pragma solidity 0.8.4;
 import "../core/BaseUpgradeablePausable.sol";
 import "../core/ConfigHelper.sol";
 import "../core/CreditLine.sol";
-import "../core/GoldfinchConfig.sol";
+import "../core/DobermanConfig.sol";
 import "../../interfaces/IMigrate.sol";
 
 /**
  * @title V2 Migrator Contract
  * @notice This is a one-time use contract solely for the purpose of migrating from our V1
- *  to our V2 architecture. It will be temporarily granted authority from the Goldfinch governance,
+ *  to our V2 architecture. It will be temporarily granted authority from the Doberman governance,
  *  and then revokes it's own authority and transfers it back to governance.
- * @author Goldfinch
+ * @author Doberman
  */
 
 contract V2Migrator is BaseUpgradeablePausable {
@@ -20,8 +20,8 @@ contract V2Migrator is BaseUpgradeablePausable {
   bytes32 public constant GO_LISTER_ROLE = keccak256("GO_LISTER_ROLE");
   using SafeMath for uint256;
 
-  GoldfinchConfig public config;
-  using ConfigHelper for GoldfinchConfig;
+  DobermanConfig public config;
+  using ConfigHelper for DobermanConfig;
 
   mapping(address => address) public borrowerContracts;
   event CreditLineMigrated(address indexed owner, address indexed clToMigrate, address newCl, address tranchedPool);
@@ -29,22 +29,22 @@ contract V2Migrator is BaseUpgradeablePausable {
   function initialize(address owner, address _config) external initializer {
     require(owner != address(0) && _config != address(0), "Owner and config addresses cannot be empty");
     __BaseUpgradeablePausable__init(owner);
-    config = GoldfinchConfig(_config);
+    config = DobermanConfig(_config);
   }
 
-  function migratePhase1(GoldfinchConfig newConfig) external onlyAdmin {
+  function migratePhase1(DobermanConfig newConfig) external onlyAdmin {
     pauseEverything();
     migrateToNewConfig(newConfig);
     migrateToSeniorPool(newConfig);
   }
 
   function migrateCreditLines(
-    GoldfinchConfig newConfig,
+    DobermanConfig newConfig,
     address[][] calldata creditLinesToMigrate,
     uint256[][] calldata migrationData
   ) external onlyAdmin {
     IMigrate creditDesk = IMigrate(newConfig.creditDeskAddress());
-    IGoldfinchFactory factory = newConfig.getGoldfinchFactory();
+    IDobermanFactory factory = newConfig.getDobermanFactory();
     for (uint256 i = 0; i < creditLinesToMigrate.length; i++) {
       address[] calldata clData = creditLinesToMigrate[i];
       uint256[] calldata data = migrationData[i];
@@ -68,7 +68,7 @@ contract V2Migrator is BaseUpgradeablePausable {
     }
   }
 
-  function bulkAddToGoList(GoldfinchConfig newConfig, address[] calldata members) external onlyAdmin {
+  function bulkAddToGoList(DobermanConfig newConfig, address[] calldata members) external onlyAdmin {
     newConfig.bulkAddToGoList(members);
   }
 
@@ -78,14 +78,14 @@ contract V2Migrator is BaseUpgradeablePausable {
     IMigrate(config.fiduAddress()).pause();
   }
 
-  function migrateToNewConfig(GoldfinchConfig newConfig) internal {
-    uint256 key = uint256(ConfigOptions.Addresses.GoldfinchConfig);
+  function migrateToNewConfig(DobermanConfig newConfig) internal {
+    uint256 key = uint256(ConfigOptions.Addresses.DobermanConfig);
     config.setAddress(key, address(newConfig));
 
-    IMigrate(config.creditDeskAddress()).updateGoldfinchConfig();
-    IMigrate(config.poolAddress()).updateGoldfinchConfig();
-    IMigrate(config.fiduAddress()).updateGoldfinchConfig();
-    IMigrate(config.goldfinchFactoryAddress()).updateGoldfinchConfig();
+    IMigrate(config.creditDeskAddress()).updateDobermanConfig();
+    IMigrate(config.poolAddress()).updateDobermanConfig();
+    IMigrate(config.fiduAddress()).updateDobermanConfig();
+    IMigrate(config.DobermanFactoryAddress()).updateDobermanConfig();
 
     key = uint256(ConfigOptions.Numbers.DrawdownPeriodInSeconds);
     newConfig.setNumber(key, 24 * 60 * 60);
@@ -98,36 +98,36 @@ contract V2Migrator is BaseUpgradeablePausable {
     newConfig.setNumber(key, 3 * 1e18);
   }
 
-  function upgradeImplementations(GoldfinchConfig _config, address[] calldata newDeployments) public {
+  function upgradeImplementations(DobermanConfig _config, address[] calldata newDeployments) public {
     address newPoolAddress = newDeployments[0];
     address newCreditDeskAddress = newDeployments[1];
     address newFiduAddress = newDeployments[2];
-    address newGoldfinchFactoryAddress = newDeployments[3];
+    address newDobermanFactoryAddress = newDeployments[3];
 
     bytes memory data;
     IMigrate pool = IMigrate(_config.poolAddress());
     IMigrate creditDesk = IMigrate(_config.creditDeskAddress());
     IMigrate fidu = IMigrate(_config.fiduAddress());
-    IMigrate goldfinchFactory = IMigrate(_config.goldfinchFactoryAddress());
+    IMigrate DobermanFactory = IMigrate(_config.DobermanFactoryAddress());
 
     // Upgrade implementations
     pool.changeImplementation(newPoolAddress, data);
     creditDesk.changeImplementation(newCreditDeskAddress, data);
     fidu.changeImplementation(newFiduAddress, data);
-    goldfinchFactory.changeImplementation(newGoldfinchFactoryAddress, data);
+    DobermanFactory.changeImplementation(newDobermanFactoryAddress, data);
   }
 
-  function migrateToSeniorPool(GoldfinchConfig newConfig) internal {
+  function migrateToSeniorPool(DobermanConfig newConfig) internal {
     IMigrate(config.fiduAddress()).grantRole(MINTER_ROLE, newConfig.seniorPoolAddress());
     IMigrate(config.poolAddress()).unpause();
     IMigrate(newConfig.poolAddress()).migrateToSeniorPool();
   }
 
-  function closeOutMigration(GoldfinchConfig newConfig) external onlyAdmin {
+  function closeOutMigration(DobermanConfig newConfig) external onlyAdmin {
     IMigrate fidu = IMigrate(newConfig.fiduAddress());
     IMigrate creditDesk = IMigrate(newConfig.creditDeskAddress());
     IMigrate oldPool = IMigrate(newConfig.poolAddress());
-    IMigrate goldfinchFactory = IMigrate(newConfig.goldfinchFactoryAddress());
+    IMigrate DobermanFactory = IMigrate(newConfig.DobermanFactoryAddress());
 
     fidu.unpause();
     fidu.renounceRole(MINTER_ROLE, address(this));
@@ -140,8 +140,8 @@ contract V2Migrator is BaseUpgradeablePausable {
     oldPool.renounceRole(OWNER_ROLE, address(this));
     oldPool.renounceRole(PAUSER_ROLE, address(this));
 
-    goldfinchFactory.renounceRole(OWNER_ROLE, address(this));
-    goldfinchFactory.renounceRole(PAUSER_ROLE, address(this));
+    DobermanFactory.renounceRole(OWNER_ROLE, address(this));
+    DobermanFactory.renounceRole(PAUSER_ROLE, address(this));
 
     config.renounceRole(PAUSER_ROLE, address(this));
     config.renounceRole(OWNER_ROLE, address(this));

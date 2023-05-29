@@ -11,7 +11,7 @@ import "./PauserPausable.sol";
  * @title BaseUpgradeablePausable contract
  * @notice This is our Base contract that most other contracts inherit from. It includes many standard
  *  useful abilities like ugpradeability, pausability, access control, and re-entrancy guards.
- * @author Goldfinch
+ * @author Doberman
  */
 
 contract BaseUpgradeablePausable is

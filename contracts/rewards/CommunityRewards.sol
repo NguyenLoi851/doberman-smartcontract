@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "../external/ERC721PresetMinterPauserAutoId.sol";
 import "../interfaces/IERC20withDec.sol";
 import "../interfaces/ICommunityRewards.sol";
-import "../protocol/core/GoldfinchConfig.sol";
+import "../protocol/core/DobermanConfig.sol";
 import "../protocol/core/ConfigHelper.sol";
 
 import "../library/CommunityRewardsVesting.sol";
@@ -17,21 +17,21 @@ import "../library/CommunityRewardsVesting.sol";
 contract CommunityRewards is ICommunityRewards, ERC721PresetMinterPauserAutoIdUpgradeSafe, ReentrancyGuardUpgradeable {
   using SafeMath for uint256;
   using SafeERC20 for IERC20withDec;
-  using ConfigHelper for GoldfinchConfig;
+  using ConfigHelper for DobermanConfig;
   using Counters for Counters.Counter;
 
   using CommunityRewardsVesting for CommunityRewardsVesting.Rewards;
 
   /* ==========     EVENTS      ========== */
 
-  event GoldfinchConfigUpdated(address indexed who, address configAddress);
+  event DobermanConfigUpdated(address indexed who, address configAddress);
 
   /* ========== STATE VARIABLES ========== */
 
   bytes32 public constant OWNER_ROLE = keccak256("OWNER_ROLE");
   bytes32 public constant DISTRIBUTOR_ROLE = keccak256("DISTRIBUTOR_ROLE");
 
-  GoldfinchConfig public config;
+  DobermanConfig public config;
 
   /// @notice Total rewards available for granting, denominated in `rewardsToken()`
   uint256 public rewardsAvailable;
@@ -45,14 +45,14 @@ contract CommunityRewards is ICommunityRewards, ERC721PresetMinterPauserAutoIdUp
   // solhint-disable-next-line func-name-mixedcase
   function __initialize__(
     address owner,
-    GoldfinchConfig _config,
+    DobermanConfig _config,
     uint256 _tokenLaunchTimeInSeconds
   ) external initializer {
     require(owner != address(0) && address(_config) != address(0), "Owner and config addresses cannot be empty");
 
     __Context_init_unchained();
     __ERC165_init_unchained();
-    __ERC721_init_unchained("Goldfinch V2 Community Rewards Tokens", "GFI-V2-CR");
+    __ERC721_init_unchained("Doberman V2 Community Rewards Tokens", "GFI-V2-CR");
     __ERC721Pausable_init_unchained();
     __AccessControl_init_unchained();
     __Pausable_init_unchained();
@@ -136,9 +136,9 @@ contract CommunityRewards is ICommunityRewards, ERC721PresetMinterPauserAutoIdUp
   }
 
   /// @notice updates current config
-  function updateGoldfinchConfig() external onlyAdmin {
-    config = GoldfinchConfig(config.configAddress());
-    emit GoldfinchConfigUpdated(_msgSender(), address(config));
+  function updateDobermanConfig() external onlyAdmin {
+    config = DobermanConfig(config.configAddress());
+    emit DobermanConfigUpdated(_msgSender(), address(config));
   }
 
   /* ========== MUTATIVE, NON-ADMIN-ONLY FUNCTIONS ========== */

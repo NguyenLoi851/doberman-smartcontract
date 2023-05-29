@@ -4,7 +4,7 @@ pragma solidity 0.8.4;
 import "../core/BaseUpgradeablePausable.sol";
 import "../core/ConfigHelper.sol";
 import "../core/CreditLine.sol";
-import "../core/GoldfinchConfig.sol";
+import "../core/DobermanConfig.sol";
 import "../../interfaces/IERC20withDec.sol";
 import "../../interfaces/ITranchedPool.sol";
 import "../../interfaces/IBorrower.sol";
@@ -12,21 +12,21 @@ import "./BaseRelayRecipient.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /**
- * @title Goldfinch's Borrower contract
- * @notice These contracts represent the a convenient way for a borrower to interact with Goldfinch
+ * @title Doberman's Borrower contract
+ * @notice These contracts represent the a convenient way for a borrower to interact with Doberman
  *  They are 100% optional. However, they let us add many sophisticated and convient features for borrowers
  *  while still keeping our core protocol small and secure. We therefore expect most borrowers will use them.
- *  This contract is the "official" borrower contract that will be maintained by Goldfinch governance. However,
+ *  This contract is the "official" borrower contract that will be maintained by Doberman governance. However,
  *  in theory, anyone can fork or create their own version, or not use any contract at all. The core functionality
  *  is completely agnostic to whether it is interacting with a contract or an externally owned account (EOA).
- * @author Goldfinch
+ * @author Doberman
  */
 
 contract Borrower is BaseUpgradeablePausable, BaseRelayRecipient, IBorrower {
   using SafeMath for uint256;
 
-  GoldfinchConfig public config;
-  using ConfigHelper for GoldfinchConfig;
+  DobermanConfig public config;
+  using ConfigHelper for DobermanConfig;
 
   address private constant USDT_ADDRESS = address(0xdAC17F958D2ee523a2206206994597C13D831ec7);
   address private constant BUSD_ADDRESS = address(0x4Fabb145d64652a948d72533023f6E7A623C7C53);
@@ -36,7 +36,7 @@ contract Borrower is BaseUpgradeablePausable, BaseRelayRecipient, IBorrower {
   function initialize(address owner, address _config) external override initializer {
     require(owner != address(0) && _config != address(0), "Owner and config addresses cannot be empty");
     __BaseUpgradeablePausable__init(owner);
-    config = GoldfinchConfig(_config);
+    config = DobermanConfig(_config);
 
     trustedForwarder = config.trustedForwarderAddress();
 

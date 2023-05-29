@@ -24,5 +24,5 @@ abstract contract IGo {
 
   function goSeniorPool(address account) public view virtual returns (bool);
 
-  function updateGoldfinchConfig() external virtual;
+  function updateDobermanConfig() external virtual;
 }

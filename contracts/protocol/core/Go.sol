@@ -12,16 +12,16 @@ contract Go is IGo, BaseUpgradeablePausable {
 
   using SafeMath for uint256;
 
-  GoldfinchConfig public config;
-  using ConfigHelper for GoldfinchConfig;
+  DobermanConfig public config;
+  using ConfigHelper for DobermanConfig;
 
-  GoldfinchConfig public legacyGoList;
+  DobermanConfig public legacyGoList;
   uint256[11] public allIdTypes;
-  event GoldfinchConfigUpdated(address indexed who, address configAddress);
+  event DobermanConfigUpdated(address indexed who, address configAddress);
 
   function initialize(
     address owner,
-    GoldfinchConfig _config,
+    DobermanConfig _config,
     address _uniqueIdentity
   ) public initializer {
     require(
@@ -34,9 +34,9 @@ contract Go is IGo, BaseUpgradeablePausable {
     uniqueIdentity = _uniqueIdentity;
   }
 
-  function updateGoldfinchConfig() external override onlyAdmin {
-    config = GoldfinchConfig(config.configAddress());
-    emit GoldfinchConfigUpdated(msg.sender, address(config));
+  function updateDobermanConfig() external override onlyAdmin {
+    config = DobermanConfig(config.configAddress());
+    emit DobermanConfigUpdated(msg.sender, address(config));
   }
 
   function performUpgrade() external onlyAdmin {
@@ -62,16 +62,16 @@ contract Go is IGo, BaseUpgradeablePausable {
    * list instead of the config currently associated. To use the associated config for to list, set the override
    * to the null address.
    */
-  function setLegacyGoList(GoldfinchConfig _legacyGoList) external onlyAdmin {
+  function setLegacyGoList(DobermanConfig _legacyGoList) external onlyAdmin {
     legacyGoList = _legacyGoList;
   }
 
   /**
-   * @notice Returns whether the provided account is go-listed for use of the Goldfinch protocol
+   * @notice Returns whether the provided account is go-listed for use of the Doberman protocol
    * for any of the UID token types.
    * This status is defined as: whether `balanceOf(account, id)` on the UniqueIdentity
    * contract is non-zero (where `id` is a supported token id on UniqueIdentity), falling back to the
-   * account's status on the legacy go-list maintained on GoldfinchConfig.
+   * account's status on the legacy go-list maintained on DobermanConfig.
    * @param account The account whose go status to obtain
    * @return The account's go status
    */
@@ -93,7 +93,7 @@ contract Go is IGo, BaseUpgradeablePausable {
   }
 
   /**
-   * @notice Returns whether the provided account is go-listed for use of the Goldfinch protocol
+   * @notice Returns whether the provided account is go-listed for use of the Doberman protocol
    * for defined UID token types
    * @param account The account whose go status to obtain
    * @param onlyIdTypes Array of id types to check balances
@@ -101,7 +101,7 @@ contract Go is IGo, BaseUpgradeablePausable {
    */
   function goOnlyIdTypes(address account, uint256[] memory onlyIdTypes) public view override returns (bool) {
     require(account != address(0), "Zero address is not go-listed");
-    GoldfinchConfig goListSource = _getLegacyGoList();
+    DobermanConfig goListSource = _getLegacyGoList();
     for (uint256 i = 0; i < onlyIdTypes.length; ++i) {
       if (onlyIdTypes[i] == ID_TYPE_0 && goListSource.goList(account)) {
         return true;
@@ -115,7 +115,7 @@ contract Go is IGo, BaseUpgradeablePausable {
   }
 
   /**
-   * @notice Returns whether the provided account is go-listed for use of the SeniorPool on the Goldfinch protocol.
+   * @notice Returns whether the provided account is go-listed for use of the SeniorPool on the Doberman protocol.
    * @param account The account whose go status to obtain
    * @return The account's go status
    */
@@ -134,7 +134,7 @@ contract Go is IGo, BaseUpgradeablePausable {
     return false;
   }
 
-  function _getLegacyGoList() internal view returns (GoldfinchConfig) {
+  function _getLegacyGoList() internal view returns (DobermanConfig) {
     return address(legacyGoList) == address(0) ? config : legacyGoList;
   }
 }

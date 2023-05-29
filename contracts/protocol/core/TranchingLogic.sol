@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 /**
  * @title TranchingLogic
  * @notice Library for handling the payments waterfall
- * @author Goldfinch
+ * @author Doberman
  */
 
 library TranchingLogic {

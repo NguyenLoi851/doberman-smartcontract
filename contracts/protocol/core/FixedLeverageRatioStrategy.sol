@@ -11,20 +11,20 @@ import "../../interfaces/ITranchedPool.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract FixedLeverageRatioStrategy is LeverageRatioStrategy {
-  GoldfinchConfig public config;
-  using ConfigHelper for GoldfinchConfig;
+  DobermanConfig public config;
+  using ConfigHelper for DobermanConfig;
 
-  event GoldfinchConfigUpdated(address indexed who, address configAddress);
+  event DobermanConfigUpdated(address indexed who, address configAddress);
 
-  function initialize(address owner, GoldfinchConfig _config) public initializer {
+  function initialize(address owner, DobermanConfig _config) public initializer {
     require(owner != address(0) && address(_config) != address(0), "Owner and config addresses cannot be empty");
     __BaseUpgradeablePausable__init(owner);
     config = _config;
   }
 
-  function updateGoldfinchConfig() external onlyAdmin {
-    config = GoldfinchConfig(config.configAddress());
-    emit GoldfinchConfigUpdated(msg.sender, address(config));
+  function updateDobermanConfig() external onlyAdmin {
+    config = DobermanConfig(config.configAddress());
+    emit DobermanConfigUpdated(msg.sender, address(config));
   }
 
   function getLeverageRatio(ITranchedPool pool) public view override returns (uint256) {

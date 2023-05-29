@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
  * @notice Inheriting from OpenZeppelin's Pausable contract, this does small
  *  augmentations to make it work with a PAUSER_ROLE, leveraging the AccessControl contract.
  *  It is meant to be inherited.
- * @author Goldfinch
+ * @author Doberman
  */
 
 contract PauserPausable is AccessControlUpgradeable, PausableUpgradeable {

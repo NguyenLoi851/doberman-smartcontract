@@ -4,8 +4,8 @@ pragma solidity 0.8.4;
 
 /**
  * @title ConfigOptions
- * @notice A central place for enumerating the configurable options of our GoldfinchConfig contract
- * @author Goldfinch
+ * @notice A central place for enumerating the configurable options of our DobermanConfig contract
+ * @author Doberman
  */
 
 library ConfigOptions {
@@ -26,7 +26,7 @@ library ConfigOptions {
   enum Addresses {
     Pool,
     CreditLineImplementation,
-    GoldfinchFactory,
+    DobermanFactory,
     CreditDesk,
     Fidu,
     USDC,
@@ -35,7 +35,7 @@ library ConfigOptions {
     OneInch,
     TrustedForwarder,
     CUSDCContract,
-    GoldfinchConfig,
+    DobermanConfig,
     PoolTokens,
     TranchedPoolImplementation,
     SeniorPool,

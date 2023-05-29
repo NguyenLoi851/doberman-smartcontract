@@ -6,11 +6,11 @@ import "./ConfigHelper.sol";
 
 /**
  * @title Fidu
- * @notice Fidu (symbol: FIDU) is Goldfinch's liquidity token, representing shares
+ * @notice Fidu (symbol: FIDU) is Doberman's liquidity token, representing shares
  *  in the Pool. When you deposit, we mint a corresponding amount of Fidu, and when you withdraw, we
  *  burn Fidu. The share price of the Pool implicitly represents the "exchange rate" between Fidu
  *  and USDC (or whatever currencies the Pool may allow withdraws in during the future)
- * @author Goldfinch
+ * @author Doberman
  */
 
 contract Fidu is ERC20PresetMinterPauserUpgradeable {
@@ -19,10 +19,10 @@ contract Fidu is ERC20PresetMinterPauserUpgradeable {
   bytes32 public constant OWNER_ROLE = keccak256("OWNER_ROLE");
   // $1 threshold to handle potential rounding errors, from differing decimals on Fidu and USDC;
   uint256 public constant ASSET_LIABILITY_MATCH_THRESHOLD = 1e6;
-  GoldfinchConfig public config;
-  using ConfigHelper for GoldfinchConfig;
+  DobermanConfig public config;
+  using ConfigHelper for DobermanConfig;
 
-  event GoldfinchConfigUpdated(address indexed who, address configAddress);
+  event DobermanConfigUpdated(address indexed who, address configAddress);
 
   /*
     We are using our own initializer function so we can set the owner by passing it in.
@@ -34,7 +34,7 @@ contract Fidu is ERC20PresetMinterPauserUpgradeable {
     address owner,
     string calldata name,
     string calldata symbol,
-    GoldfinchConfig _config
+    DobermanConfig _config
   ) external initializer {
     __Context_init_unchained();
     __AccessControl_init_unchained();
@@ -126,9 +126,9 @@ contract Fidu is ERC20PresetMinterPauserUpgradeable {
     return uint256(10)**uint256(6);
   }
 
-  function updateGoldfinchConfig() external {
+  function updateDobermanConfig() external {
     require(hasRole(OWNER_ROLE, _msgSender()), "ERC20PresetMinterPauser: Must have minter role to change config");
-    config = GoldfinchConfig(config.configAddress());
-    emit GoldfinchConfigUpdated(msg.sender, address(config));
+    config = DobermanConfig(config.configAddress());
+    emit DobermanConfigUpdated(msg.sender, address(config));
   }
 }

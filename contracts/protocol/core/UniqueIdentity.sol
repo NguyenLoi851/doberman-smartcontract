@@ -10,7 +10,7 @@ import "../../interfaces/IUniqueIdentity.sol";
  * @title UniqueIdentity
  * @notice UniqueIdentity is an ERC1155-compliant contract for representing
  * the identity verification status of addresses.
- * @author Goldfinch
+ * @author Doberman
  */
 
 contract UniqueIdentity is ERC1155PresetPauserUpgradeable, IUniqueIdentity {

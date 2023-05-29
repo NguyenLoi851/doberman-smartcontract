@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.4;
 
-import "./GoldfinchConfig.sol";
+import "./DobermanConfig.sol";
 import "./ConfigHelper.sol";
 import "./BaseUpgradeablePausable.sol";
 import "./Accountant.sol";
@@ -16,7 +16,7 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
  *  a Borrower. Includes the terms of the loan, as well as the current accounting state, such as interest owed.
  *  A CreditLine belongs to a TranchedPool, and is fully controlled by that TranchedPool. It does not
  *  operate in any standalone capacity. It should generally be considered internal to the TranchedPool.
- * @author Goldfinch
+ * @author Doberman
  */
 
 // solhint-disable-next-line max-states-count
@@ -25,7 +25,7 @@ contract CreditLine is BaseUpgradeablePausable, ICreditLine {
 
   uint256 public constant SECONDS_PER_DAY = 60 * 60 * 24;
 
-  event GoldfinchConfigUpdated(address indexed who, address configAddress);
+  event DobermanConfigUpdated(address indexed who, address configAddress);
 
   // Credit line terms
   address public override borrower;
@@ -47,8 +47,8 @@ contract CreditLine is BaseUpgradeablePausable, ICreditLine {
   uint256 public override lastFullPaymentTime;
   uint256 public totalInterestAccrued;
 
-  GoldfinchConfig public config;
-  using ConfigHelper for GoldfinchConfig;
+  DobermanConfig public config;
+  using ConfigHelper for DobermanConfig;
 
   function initialize(
     address _config,
@@ -63,7 +63,7 @@ contract CreditLine is BaseUpgradeablePausable, ICreditLine {
   ) public initializer {
     require(_config != address(0) && owner != address(0) && _borrower != address(0), "Zero address passed in");
     __BaseUpgradeablePausable__init(owner);
-    config = GoldfinchConfig(_config);
+    config = DobermanConfig(_config);
     borrower = _borrower;
     maxLimit = _maxLimit;
     interestApr = _interestApr;
@@ -107,11 +107,11 @@ contract CreditLine is BaseUpgradeablePausable, ICreditLine {
   }
 
   /**
-   * @notice Migrates to a new goldfinch config address
+   * @notice Migrates to a new Doberman config address
    */
-  function updateGoldfinchConfig() external onlyAdmin {
-    config = GoldfinchConfig(config.configAddress());
-    emit GoldfinchConfigUpdated(msg.sender, address(config));
+  function updateDobermanConfig() external onlyAdmin {
+    config = DobermanConfig(config.configAddress());
+    emit DobermanConfigUpdated(msg.sender, address(config));
   }
 
   function setLateFeeApr(uint256 newLateFeeApr) external onlyAdmin {

@@ -6,15 +6,15 @@ import "./BaseUpgradeablePausable.sol";
 import "./ConfigHelper.sol";
 
 /**
- * @title Goldfinch's Pool contract
+ * @title Doberman's Pool contract
  * @notice Main entry point for LP's (a.k.a. capital providers)
  *  Handles key logic for depositing and withdrawing funds from the Pool
- * @author Goldfinch
+ * @author Doberman
  */
 
 contract Pool is BaseUpgradeablePausable, IPool {
-  GoldfinchConfig public config;
-  using ConfigHelper for GoldfinchConfig;
+  DobermanConfig public config;
+  using ConfigHelper for DobermanConfig;
   using SafeMath for uint256;
 
   uint256 public compoundBalance;
@@ -26,14 +26,14 @@ contract Pool is BaseUpgradeablePausable, IPool {
   event PrincipalCollected(address indexed payer, uint256 amount);
   event ReserveFundsCollected(address indexed user, uint256 amount);
   event PrincipalWrittendown(address indexed creditline, int256 amount);
-  event GoldfinchConfigUpdated(address indexed who, address configAddress);
+  event DobermanConfigUpdated(address indexed who, address configAddress);
 
   /**
    * @notice Run only once, on initialization
    * @param owner The address of who should have the "OWNER_ROLE" of this contract
-   * @param _config The address of the GoldfinchConfig contract
+   * @param _config The address of the DobermanConfig contract
    */
-  function initialize(address owner, GoldfinchConfig _config) public initializer {
+  function initialize(address owner, DobermanConfig _config) public initializer {
     require(owner != address(0) && address(_config) != address(0), "Owner and config addresses cannot be empty");
 
     __BaseUpgradeablePausable__init(owner);
@@ -97,7 +97,7 @@ contract Pool is BaseUpgradeablePausable, IPool {
 
   /**
    * @notice Collects `interest` USDC in interest and `principal` in principal from `from` and sends it to the Pool.
-   *  This also increases the share price accordingly. A portion is sent to the Goldfinch Reserve address
+   *  This also increases the share price accordingly. A portion is sent to the Doberman Reserve address
    * @param from The address to take the USDC from. Implicitly, the Pool
    *  must be authorized to move USDC on behalf of `from`.
    * @param interest the interest amount of USDC to move to the Pool
@@ -342,9 +342,9 @@ contract Pool is BaseUpgradeablePausable, IPool {
     sweepFromCompound(cUSDC, cUSDC.balanceOf(address(this)));
   }
 
-  function updateGoldfinchConfig() external onlyAdmin {
-    config = GoldfinchConfig(config.configAddress());
-    emit GoldfinchConfigUpdated(msg.sender, address(config));
+  function updateDobermanConfig() external onlyAdmin {
+    config = DobermanConfig(config.configAddress());
+    emit DobermanConfigUpdated(msg.sender, address(config));
   }
 
   function fiduMantissa() internal pure returns (uint256) {

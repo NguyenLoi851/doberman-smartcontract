@@ -2,7 +2,7 @@
 pragma solidity 0.8.4;
 
 import "../../external/ERC721PresetMinterPauserAutoId.sol";
-import "./GoldfinchConfig.sol";
+import "./DobermanConfig.sol";
 import "./ConfigHelper.sol";
 import "../../interfaces/ITranchedPool.sol";
 import "../../interfaces/IPoolTokens.sol";
@@ -12,13 +12,13 @@ import '@openzeppelin/contracts/utils/Counters.sol';
  * @title PoolTokens
  * @notice PoolTokens is an ERC721 compliant contract, which can represent
  *  junior tranche or senior tranche shares of any of the borrower pools.
- * @author Goldfinch
+ * @author Doberman
  */
 
 contract PoolTokens is IPoolTokens, ERC721PresetMinterPauserAutoIdUpgradeSafe {
   bytes32 public constant OWNER_ROLE = keccak256("OWNER_ROLE");
-  GoldfinchConfig public config;
-  using ConfigHelper for GoldfinchConfig;
+  DobermanConfig public config;
+  using ConfigHelper for DobermanConfig;
   using SafeMath for uint256;
   using Counters for Counters.Counter;
 
@@ -52,21 +52,21 @@ contract PoolTokens is IPoolTokens, ERC721PresetMinterPauserAutoIdUpgradeSafe {
 
   // event TokenBurned(address indexed owner, address indexed pool, uint256 indexed tokenId);
 
-  event GoldfinchConfigUpdated(address indexed who, address configAddress);
+  event DobermanConfigUpdated(address indexed who, address configAddress);
 
   /*
     We are using our own initializer function so that OZ doesn't automatically
     set owner as msg.sender. Also, it lets us set our config contract
   */
   // solhint-disable-next-line func-name-mixedcase
-  function __initialize__(address owner, GoldfinchConfig _config) external initializer {
+  function __initialize__(address owner, DobermanConfig _config) external initializer {
     require(owner != address(0) && address(_config) != address(0), "Owner and config addresses cannot be empty");
 
     __Context_init_unchained();
     __AccessControl_init_unchained();
     __ERC165_init_unchained();
     // This is setting name and symbol of the NFT's
-    __ERC721_init_unchained("Goldfinch V2 Pool Tokens", "GFI-V2-PT");
+    __ERC721_init_unchained("Doberman V2 Pool Tokens", "GFI-V2-PT");
     __Pausable_init_unchained();
     __ERC721Pausable_init_unchained();
 
@@ -151,11 +151,11 @@ contract PoolTokens is IPoolTokens, ERC721PresetMinterPauserAutoIdUpgradeSafe {
   }
 
   /**
-   * @notice Called by the GoldfinchFactory to register the pool as a valid pool. Only valid pools can mint/redeem
+   * @notice Called by the DobermanFactory to register the pool as a valid pool. Only valid pools can mint/redeem
    * tokens
    * @param newPool The address of the newly created pool
    */
-  function onPoolCreated(address newPool) external override onlyGoldfinchFactory {
+  function onPoolCreated(address newPool) external override onlyDobermanFactory {
     pools[newPool].created = true;
   }
 
@@ -203,11 +203,11 @@ contract PoolTokens is IPoolTokens, ERC721PresetMinterPauserAutoIdUpgradeSafe {
   }
 
   /**
-   * @notice Migrates to a new goldfinch config address
+   * @notice Migrates to a new Doberman config address
    */
-  function updateGoldfinchConfig() external onlyAdmin {
-    config = GoldfinchConfig(config.configAddress());
-    emit GoldfinchConfigUpdated(msg.sender, address(config));
+  function updateDobermanConfig() external onlyAdmin {
+    config = DobermanConfig(config.configAddress());
+    emit DobermanConfigUpdated(msg.sender, address(config));
   }
 
   modifier onlyAdmin() {
@@ -219,8 +219,8 @@ contract PoolTokens is IPoolTokens, ERC721PresetMinterPauserAutoIdUpgradeSafe {
     return hasRole(OWNER_ROLE, _msgSender());
   }
 
-  modifier onlyGoldfinchFactory() {
-    require(_msgSender() == config.goldfinchFactoryAddress(), "Only Goldfinch factory is allowed");
+  modifier onlyDobermanFactory() {
+    require(_msgSender() == config.DobermanFactoryAddress(), "Only Doberman factory is allowed");
     _;
   }
 

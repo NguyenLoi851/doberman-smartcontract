@@ -13,7 +13,7 @@ import "../../interfaces/IPoolTokens.sol";
 import "../../interfaces/ISeniorPool.sol";
 import "../../interfaces/IFidu.sol";
 import "../core/BaseUpgradeablePausable.sol";
-import "../core/GoldfinchConfig.sol";
+import "../core/DobermanConfig.sol";
 import "../core/ConfigHelper.sol";
 import "../../library/SafeERC20Transfer.sol";
 
@@ -24,8 +24,8 @@ contract TransferRestrictedVault is
 {
   bytes32 public constant OWNER_ROLE = keccak256("OWNER_ROLE");
   uint256 public constant SECONDS_PER_DAY = 60 * 60 * 24;
-  GoldfinchConfig public config;
-  using ConfigHelper for GoldfinchConfig;
+  DobermanConfig public config;
+  using ConfigHelper for DobermanConfig;
   using SafeMath for uint256;
   using Counters for Counters.Counter;
 
@@ -49,14 +49,14 @@ contract TransferRestrictedVault is
     set owner as msg.sender. Also, it lets us set our config contract
   */
   // solhint-disable-next-line func-name-mixedcase
-  function __initialize__(address owner, GoldfinchConfig _config) external initializer {
+  function __initialize__(address owner, DobermanConfig _config) external initializer {
     require(owner != address(0) && address(_config) != address(0), "Owner and config addresses cannot be empty");
 
     __Context_init_unchained();
     __AccessControl_init_unchained();
     __ReentrancyGuard_init_unchained();
     __ERC165_init_unchained();
-    __ERC721_init_unchained("Goldfinch V2 Accredited Investor Tokens", "GFI-V2-AI");
+    __ERC721_init_unchained("Doberman V2 Accredited Investor Tokens", "GFI-V2-AI");
     __Pausable_init_unchained();
     __ERC721Pausable_init_unchained();
 

@@ -6,23 +6,23 @@ import "./BaseUpgradeablePausable.sol";
 import "./ConfigHelper.sol";
 import "./Accountant.sol";
 import "./CreditLine.sol";
-import "./GoldfinchFactory.sol";
+import "./DobermanFactory.sol";
 import "../../interfaces/IV1CreditLine.sol";
 import "../../interfaces/IMigratedTranchedPool.sol";
 
 /**
- * @title Goldfinch's CreditDesk contract
+ * @title Doberman's CreditDesk contract
  * @notice Main entry point for borrowers and underwriters.
  *  Handles key logic for creating CreditLine's, borrowing money, repayment, etc.
- * @author Goldfinch
+ * @author Doberman
  */
 
 contract CreditDesk is BaseUpgradeablePausable, ICreditDesk {
   using SafeMath for uint256;
   
   uint256 public constant SECONDS_PER_DAY = 60 * 60 * 24;
-  GoldfinchConfig public config;
-  using ConfigHelper for GoldfinchConfig;
+  DobermanConfig public config;
+  using ConfigHelper for DobermanConfig;
 
   struct Underwriter {
     uint256 governanceLimit;
@@ -52,9 +52,9 @@ contract CreditDesk is BaseUpgradeablePausable, ICreditDesk {
   /**
    * @notice Run only once, on initialization
    * @param owner The address of who should have the "OWNER_ROLE" of this contract
-   * @param _config The address of the GoldfinchConfig contract
+   * @param _config The address of the DobermanConfig contract
    */
-  function initialize(address owner, GoldfinchConfig _config) public initializer {
+  function initialize(address owner, DobermanConfig _config) public initializer {
     require(owner != address(0) && address(_config) != address(0), "Owner and config addresses cannot be empty");
     __BaseUpgradeablePausable__init(owner);
     config = _config;
@@ -238,7 +238,7 @@ contract CreditDesk is BaseUpgradeablePausable, ICreditDesk {
     // So multiply the legacy rates by 1e10 to normalize them.
     uint256 interestMigrationFactor = 1e10;
     uint256[] memory allowedUIDTypes;
-    address pool = getGoldfinchFactory().createMigratedPool(
+    address pool = getDobermanFactory().createMigratedPool(
       borrower,
       20, // junior fee percent
       clToMigrate.limit(),
@@ -317,8 +317,8 @@ contract CreditDesk is BaseUpgradeablePausable, ICreditDesk {
     return cl.interestOwed().add(interestAccrued).add(cl.principalOwed().add(principalAccrued));
   }
 
-  function updateGoldfinchConfig() external onlyAdmin {
-    config = GoldfinchConfig(config.configAddress());
+  function updateDobermanConfig() external onlyAdmin {
+    config = DobermanConfig(config.configAddress());
   }
 
   /*
@@ -413,8 +413,8 @@ contract CreditDesk is BaseUpgradeablePausable, ICreditDesk {
     return secondsElapsedSinceFullPayment > cl.paymentPeriodInDays().mul(SECONDS_PER_DAY);
   }
 
-  function getGoldfinchFactory() internal view returns (GoldfinchFactory) {
-    return GoldfinchFactory(config.getAddress(uint256(ConfigOptions.Addresses.GoldfinchFactory)));
+  function getDobermanFactory() internal view returns (DobermanFactory) {
+    return DobermanFactory(config.getAddress(uint256(ConfigOptions.Addresses.DobermanFactory)));
   }
 
   function updateAndGetInterestAndPrincipalOwedAsOf(CreditLine cl, uint256 timestamp)
