@@ -38,17 +38,17 @@ contract Borrower is BaseUpgradeablePausable, BaseRelayRecipient, IBorrower {
     __BaseUpgradeablePausable__init(owner);
     config = DobermanConfig(_config);
 
-    trustedForwarder = config.trustedForwarderAddress();
+    // trustedForwarder = config.trustedForwarderAddress();
 
     // Handle default approvals. Pool, and OneInch for maximum amounts
-    address oneInch = config.oneInchAddress();
-    IERC20withDec usdc = config.getUSDC();
-    usdc.approve(oneInch, type(uint256).max);
-    bytes memory data = abi.encodeWithSignature("approve(address,uint256)", oneInch, type(uint256).max);
-    invoke(USDT_ADDRESS, data);
-    invoke(BUSD_ADDRESS, data);
-    invoke(GUSD_ADDRESS, data);
-    invoke(DAI_ADDRESS, data);
+    // address oneInch = config.oneInchAddress();
+    // IERC20withDec usdc = config.getUSDC();
+    // usdc.approve(oneInch, type(uint256).max);
+    // bytes memory data = abi.encodeWithSignature("approve(address,uint256)", oneInch, type(uint256).max);
+    // invoke(USDT_ADDRESS, data);
+    // invoke(BUSD_ADDRESS, data);
+    // invoke(GUSD_ADDRESS, data);
+    // invoke(DAI_ADDRESS, data);
   }
 
   function lockJuniorCapital(address poolAddress) external onlyAdmin {

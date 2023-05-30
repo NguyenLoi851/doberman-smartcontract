@@ -3,6 +3,7 @@ import "@nomicfoundation/hardhat-toolbox";
 import 'dotenv/config'
 import 'hardhat-deploy'
 import '@nomiclabs/hardhat-etherscan'
+import 'hardhat-contract-sizer'
 
 enum CHAIN_IDS {
   goerli = 5,
@@ -21,18 +22,35 @@ const accounts = [DEPLOYER_PRIVATE_KEY as string]
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: '0.8.4',
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 100,
-      },
-      outputSelection: {
-        '*': {
-          '*': ['storageLayout'],
+    compilers: [
+      {
+        version: '0.6.12',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 100,
+          },
         },
       },
-    },
+      {
+        version: '0.7.6',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 100,
+          },
+        },
+      },
+      {
+        version: '0.8.4',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 100,
+          },
+        },
+      },
+    ]
   },
   defaultNetwork: 'hardhat',
   networks: {
@@ -256,6 +274,11 @@ const config: HardhatUserConfig = {
     currency: 'USD',
     coinmarketcap: process.env.COINMARKETCAP_API_KEY
   },
+  contractSizer: {
+    runOnCompile: true,
+    strict: true,
+    alphaSort: true
+  }
 };
 
 export default config;
