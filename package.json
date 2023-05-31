@@ -6,6 +6,7 @@
     "deploy:goerli": "hardhat deploy --network goerli",
     "deploy:binancetest": "hardhat deploy --network binancetest",
     "deploy:sepolia": "hardhat deploy ---network sepolia",
+    "deploy:mumbai": "hardhat deploy --network mumbai",
     "trace": "hardhat test --trace"
   },
   "devDependencies": {

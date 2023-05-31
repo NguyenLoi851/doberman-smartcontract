@@ -23,5 +23,6 @@ const deployConfig: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 };
 
 deployConfig.tags = ['CONFIG'];
+deployConfig.skip = () => Promise.resolve(true);
 
 export default deployConfig;

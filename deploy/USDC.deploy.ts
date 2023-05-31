@@ -40,4 +40,6 @@ const deployFactory: DeployFunction = async (
 };
 
 deployFactory.tags = ['USDC'];
+deployFactory.skip = () => Promise.resolve(true);
+
 export default deployFactory;

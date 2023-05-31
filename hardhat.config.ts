@@ -267,7 +267,8 @@ const config: HardhatUserConfig = {
     }
   },
   etherscan: {
-    apiKey: ETHERSCAN_API_KEY,
+    // apiKey: ETHERSCAN_API_KEY,
+    apiKey: MUMBAI_API_KEY,
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS ? true : false,
@@ -277,7 +278,8 @@ const config: HardhatUserConfig = {
   contractSizer: {
     runOnCompile: true,
     strict: true,
-    alphaSort: true
+    alphaSort: true,
+    only: ['Lock.sol'],
   }
 };
 
