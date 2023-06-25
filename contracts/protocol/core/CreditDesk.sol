@@ -20,7 +20,7 @@ import "../../interfaces/IMigratedTranchedPool.sol";
 contract CreditDesk is BaseUpgradeablePausable, ICreditDesk {
   using SafeMath for uint256;
   
-  uint256 public constant SECONDS_PER_DAY = 60 * 60 * 24;
+  uint256 public constant SECONDS_PER_DAY = 60;
   DobermanConfig public config;
   using ConfigHelper for DobermanConfig;
 

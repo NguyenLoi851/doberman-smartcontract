@@ -40,5 +40,6 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
 }
 
 verification.tags = ['VERIFICATION_TRANCHED_POOL']
+verification.dependencies = ['TRANCHED_POOL']
 
 export default verification

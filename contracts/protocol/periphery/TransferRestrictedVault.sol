@@ -23,7 +23,7 @@ contract TransferRestrictedVault is
   SafeERC20Transfer
 {
   bytes32 public constant OWNER_ROLE = keccak256("OWNER_ROLE");
-  uint256 public constant SECONDS_PER_DAY = 60 * 60 * 24;
+  uint256 public constant SECONDS_PER_DAY = 60;
   DobermanConfig public config;
   using ConfigHelper for DobermanConfig;
   using SafeMath for uint256;

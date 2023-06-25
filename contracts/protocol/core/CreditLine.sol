@@ -23,7 +23,7 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
 contract CreditLine is BaseUpgradeablePausable, ICreditLine {
   using SafeMath for uint256;
 
-  uint256 public constant SECONDS_PER_DAY = 60 * 60 * 24;
+  uint256 public constant SECONDS_PER_DAY = 60;
 
   event DobermanConfigUpdated(address indexed who, address configAddress);
 

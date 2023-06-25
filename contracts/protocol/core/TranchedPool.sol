@@ -26,7 +26,7 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
   bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
   bytes32 public constant SENIOR_ROLE = keccak256("SENIOR_ROLE");
   uint256 public constant FP_SCALING_FACTOR = 1e18;
-  uint256 public constant SECONDS_PER_DAY = 60 * 60 * 24;
+  uint256 public constant SECONDS_PER_DAY = 60;
   uint256 public constant ONE_HUNDRED = 100; // Need this because we cannot call .div on a literal 100
   uint256 public constant NUM_TRANCHES_PER_SLICE = 2;
   uint256 public juniorFeePercent;
