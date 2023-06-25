@@ -15,21 +15,20 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
             }, 30)
         })
 
-        const dobermanConfig = (await deployments.get('DobermanConfig')).address
+        const fidu = (await deployments.get('Fidu_Implementation')).address
 
         console.log('----- START VERIFICATION -----');
 
         await hre.run('verify:verify', {
-            address: dobermanConfig,
+            address: fidu,
             constructorArguments: [],
-            contract: "contracts/protocol/core/DobermanConfig.sol:DobermanConfig"
+            contract: "contracts/protocol/core/Fidu.sol:Fidu"
         })    
     } catch (error) {
         console.log(error);
     }
 }
 
-verification.tags = ['VERIFICATION_CONFIG']
-// verification.skip = () => Promise.resolve(true);
+verification.tags = ['VERIFICATION_FIDU']
 
 export default verification

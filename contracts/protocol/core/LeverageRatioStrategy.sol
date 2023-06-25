@@ -58,6 +58,10 @@ abstract contract LeverageRatioStrategy is BaseUpgradeablePausable, ISeniorPoolS
     uint256 existingSeniorCapital = seniorTranche.principalDeposited;
     uint256 seniorTarget = juniorCapital.mul(getLeverageRatio(pool)).div(LEVERAGE_RATIO_DECIMALS);
 
+    IV2CreditLine creditLine = pool.creditLine();
+    uint256 maxLimit = creditLine.maxLimit();
+    seniorTarget = (juniorCapital + seniorTarget > maxLimit) ? maxLimit - juniorCapital : seniorTarget;
+    
     if (existingSeniorCapital >= seniorTarget) {
       return 0;
     }

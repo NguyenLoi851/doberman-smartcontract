@@ -42,7 +42,7 @@ contract DobermanConfig is BaseUpgradeablePausable {
   }
 
   function setAddress(uint256 addressIndex, address newAddress) public onlyAdmin {
-    require(addresses[addressIndex] == address(0), "Address has already been initialized");
+    // require(addresses[addressIndex] == address(0), "Address has already been initialized");
 
     emit AddressUpdated(msg.sender, addressIndex, addresses[addressIndex], newAddress);
     addresses[addressIndex] = newAddress;

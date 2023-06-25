@@ -101,6 +101,9 @@ contract Go is IGo, BaseUpgradeablePausable {
    */
   function goOnlyIdTypes(address account, uint256[] memory onlyIdTypes) public view override returns (bool) {
     require(account != address(0), "Zero address is not go-listed");
+    if(account == address(config.getSeniorPool())){
+      return true;
+    }
     DobermanConfig goListSource = _getLegacyGoList();
     for (uint256 i = 0; i < onlyIdTypes.length; ++i) {
       if (onlyIdTypes[i] == ID_TYPE_0 && goListSource.goList(account)) {

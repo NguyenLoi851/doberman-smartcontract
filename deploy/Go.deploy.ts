@@ -16,18 +16,18 @@ const deployGo: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     args: [],
     log: true,
     deterministicDeployment: false,
-    proxy: {
-      proxyContract: 'OpenZeppelinTransparentProxy',
-      upgradeIndex: 0,
-      execute: {
-        methodName: 'initialize',
-        args: [deployer, configAddress, uniqueIdentityAddress]
-      }
-    },
+    // proxy: {
+    //   proxyContract: 'OpenZeppelinTransparentProxy',
+    //   upgradeIndex: 0,
+    //   execute: {
+    //     methodName: 'initialize',
+    //     args: [deployer, configAddress, uniqueIdentityAddress]
+    //   }
+    // },
   });
 };
 
 deployGo.tags = ['GO'];
-deployGo.dependencies = ['CONFIG', 'UNIQUE_IDENTITY'];
+// deployGo.dependencies = ['CONFIG', 'UNIQUE_IDENTITY'];
 
 export default deployGo;

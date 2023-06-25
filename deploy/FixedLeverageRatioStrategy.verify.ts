@@ -15,20 +15,21 @@ const verification: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
             }, 30)
         })
 
-        const go = (await deployments.get('Go')).address
+        const fixedLeverageRatioStrategy = (await deployments.get('FixedLeverageRatioStrategy_Implementation')).address
 
         console.log('----- START VERIFICATION -----');
 
         await hre.run('verify:verify', {
-            address: go,
+            address: fixedLeverageRatioStrategy,
             constructorArguments: [],
-            contract: "contracts/protocol/core/Go.sol:Go"
+            contract: "contracts/protocol/core/FixedLeverageRatioStrategy.sol:FixedLeverageRatioStrategy"
         })
     } catch (error) {
         console.log(error);
     }
 }
 
-verification.tags = ['VERIFICATION_GO']
+verification.tags = ['VERIFICATION_FIXED_LEVERAGE_RATIO_STRATEGY']
+verification.dependencies = ['FIXED_LEVERAGE_RATIO_STRATEGY']
 
 export default verification

@@ -27,16 +27,17 @@ const buildSignature = async(
     console.log(ethers.getBytes(msgHash))
     console.log('=')
     console.log(await signer.signMessage(ethers.toUtf8Bytes(msgHash)))
+    console.log(await signer.signMessage(ethers.getBytes(msgHash)))
 }
 
 const admin = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY as any)
 
 buildSignature(
     admin, 
-    '0xf41BA28610A002440cC724CaD80d31F4554070F8',
+    '0x34E0Ab7Ac91e9c2281Ead1b215F3c95EfAf0f215',
     1,
     2000000000,
-    '0x05FCE5CB76326Bf9777FA206F1998c71292ad466',
+    '0x5042f8CCCDDaBD2deEBa9E9B6b8255a67a7C56a6',
     0,
-    11155111
+    80001
 )

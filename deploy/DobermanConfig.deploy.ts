@@ -11,18 +11,18 @@ const deployConfig: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     args: [],
     log: true,
     deterministicDeployment: false,
-    proxy: {
-        proxyContract: 'OpenZeppelinTransparentProxy',
-        upgradeIndex: 0,
-        execute: {
-          methodName: 'initialize',
-          args: [deployer]
-        }
-      },
+    // proxy: {
+    //     proxyContract: 'OpenZeppelinTransparentProxy',
+    //     upgradeIndex: 0,
+    //     execute: {
+    //       methodName: 'initialize',
+    //       args: [deployer]
+    //     }
+    //   },
   });
 };
 
 deployConfig.tags = ['CONFIG'];
-deployConfig.skip = () => Promise.resolve(true);
+// deployConfig.skip = () => Promise.resolve(true);
 
 export default deployConfig;
