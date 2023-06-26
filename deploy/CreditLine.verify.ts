@@ -40,5 +40,5 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
 }
 
 verification.tags = ['VERIFICATION_CREDIT_LINE']
-
+verification.dependencies = ['CREDIT_LINE']
 export default verification

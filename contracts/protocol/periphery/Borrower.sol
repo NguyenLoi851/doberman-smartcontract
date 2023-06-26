@@ -28,10 +28,10 @@ contract Borrower is BaseUpgradeablePausable, BaseRelayRecipient, IBorrower {
   DobermanConfig public config;
   using ConfigHelper for DobermanConfig;
 
-  address private constant USDT_ADDRESS = address(0xdAC17F958D2ee523a2206206994597C13D831ec7);
-  address private constant BUSD_ADDRESS = address(0x4Fabb145d64652a948d72533023f6E7A623C7C53);
-  address private constant GUSD_ADDRESS = address(0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd);
-  address private constant DAI_ADDRESS = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+  // address private constant USDT_ADDRESS = address(0xdAC17F958D2ee523a2206206994597C13D831ec7);
+  // address private constant BUSD_ADDRESS = address(0x4Fabb145d64652a948d72533023f6E7A623C7C53);
+  // address private constant GUSD_ADDRESS = address(0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd);
+  // address private constant DAI_ADDRESS = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
 
   function initialize(address owner, address _config) external override initializer {
     require(owner != address(0) && _config != address(0), "Owner and config addresses cannot be empty");
@@ -81,30 +81,30 @@ contract Borrower is BaseUpgradeablePausable, BaseRelayRecipient, IBorrower {
     transferERC20(config.usdcAddress(), addressToSendTo, amount);
   }
 
-  function drawdownWithSwapOnOneInch(
-    address poolAddress,
-    uint256 amount,
-    address addressToSendTo,
-    address toToken,
-    uint256 minTargetAmount,
-    uint256[] calldata exchangeDistribution
-  ) public onlyAdmin {
-    // Drawdown to the Borrower contract
-    ITranchedPool(poolAddress).drawdown(amount);
+  // function drawdownWithSwapOnOneInch(
+  //   address poolAddress,
+  //   uint256 amount,
+  //   address addressToSendTo,
+  //   address toToken,
+  //   uint256 minTargetAmount,
+  //   uint256[] calldata exchangeDistribution
+  // ) public onlyAdmin {
+  //   // Drawdown to the Borrower contract
+  //   ITranchedPool(poolAddress).drawdown(amount);
 
-    // Do the swap
-    swapOnOneInch(config.usdcAddress(), toToken, amount, minTargetAmount, exchangeDistribution);
+  //   // Do the swap
+  //   swapOnOneInch(config.usdcAddress(), toToken, amount, minTargetAmount, exchangeDistribution);
 
-    // Default to sending to the owner, and don't let funds stay in this contract
-    if (addressToSendTo == address(0) || addressToSendTo == address(this)) {
-      addressToSendTo = _msgSender();
-    }
+  //   // Default to sending to the owner, and don't let funds stay in this contract
+  //   if (addressToSendTo == address(0) || addressToSendTo == address(this)) {
+  //     addressToSendTo = _msgSender();
+  //   }
 
-    // Fulfill the send to
-    bytes memory _data = abi.encodeWithSignature("balanceOf(address)", address(this));
-    uint256 receivedAmount = toUint256(invoke(toToken, _data));
-    transferERC20(toToken, addressToSendTo, receivedAmount);
-  }
+  //   // Fulfill the send to
+  //   bytes memory _data = abi.encodeWithSignature("balanceOf(address)", address(this));
+  //   uint256 receivedAmount = toUint256(invoke(toToken, _data));
+  //   transferERC20(toToken, addressToSendTo, receivedAmount);
+  // }
 
   function transferERC20(
     address token,
@@ -154,48 +154,48 @@ contract Borrower is BaseUpgradeablePausable, BaseRelayRecipient, IBorrower {
     require(ITranchedPool(poolAddress).creditLine().balance() == 0, "Failed to fully pay off creditline");
   }
 
-  function payWithSwapOnOneInch(
-    address poolAddress,
-    uint256 originAmount,
-    address fromToken,
-    uint256 minTargetAmount,
-    uint256[] calldata exchangeDistribution
-  ) external onlyAdmin {
-    transferFrom(fromToken, _msgSender(), address(this), originAmount);
-    IERC20withDec usdc = config.getUSDC();
-    swapOnOneInch(fromToken, address(usdc), originAmount, minTargetAmount, exchangeDistribution);
-    uint256 usdcBalance = usdc.balanceOf(address(this));
-    _transferAndPay(usdc, poolAddress, usdcBalance);
-  }
+  // function payWithSwapOnOneInch(
+  //   address poolAddress,
+  //   uint256 originAmount,
+  //   address fromToken,
+  //   uint256 minTargetAmount,
+  //   uint256[] calldata exchangeDistribution
+  // ) external onlyAdmin {
+  //   transferFrom(fromToken, _msgSender(), address(this), originAmount);
+  //   IERC20withDec usdc = config.getUSDC();
+  //   swapOnOneInch(fromToken, address(usdc), originAmount, minTargetAmount, exchangeDistribution);
+  //   uint256 usdcBalance = usdc.balanceOf(address(this));
+  //   _transferAndPay(usdc, poolAddress, usdcBalance);
+  // }
 
-  function payMultipleWithSwapOnOneInch(
-    address[] calldata pools,
-    uint256[] calldata minAmounts,
-    uint256 originAmount,
-    address fromToken,
-    uint256[] calldata exchangeDistribution
-  ) external onlyAdmin {
-    require(pools.length == minAmounts.length, "Pools and amounts must be the same length");
+  // function payMultipleWithSwapOnOneInch(
+  //   address[] calldata pools,
+  //   uint256[] calldata minAmounts,
+  //   uint256 originAmount,
+  //   address fromToken,
+  //   uint256[] calldata exchangeDistribution
+  // ) external onlyAdmin {
+  //   require(pools.length == minAmounts.length, "Pools and amounts must be the same length");
 
-    uint256 totalMinAmount = 0;
-    for (uint256 i = 0; i < minAmounts.length; i++) {
-      totalMinAmount = totalMinAmount.add(minAmounts[i]);
-    }
+  //   uint256 totalMinAmount = 0;
+  //   for (uint256 i = 0; i < minAmounts.length; i++) {
+  //     totalMinAmount = totalMinAmount.add(minAmounts[i]);
+  //   }
 
-    transferFrom(fromToken, _msgSender(), address(this), originAmount);
+  //   transferFrom(fromToken, _msgSender(), address(this), originAmount);
 
-    IERC20withDec usdc = config.getUSDC();
-    swapOnOneInch(fromToken, address(usdc), originAmount, totalMinAmount, exchangeDistribution);
+  //   IERC20withDec usdc = config.getUSDC();
+  //   swapOnOneInch(fromToken, address(usdc), originAmount, totalMinAmount, exchangeDistribution);
 
-    for (uint256 i = 0; i < minAmounts.length; i++) {
-      _transferAndPay(usdc, pools[i], minAmounts[i]);
-    }
+  //   for (uint256 i = 0; i < minAmounts.length; i++) {
+  //     _transferAndPay(usdc, pools[i], minAmounts[i]);
+  //   }
 
-    uint256 remainingUSDC = usdc.balanceOf(address(this));
-    if (remainingUSDC > 0) {
-      _transferAndPay(usdc, pools[0], remainingUSDC);
-    }
-  }
+  //   uint256 remainingUSDC = usdc.balanceOf(address(this));
+  //   if (remainingUSDC > 0) {
+  //     _transferAndPay(usdc, pools[0], remainingUSDC);
+  //   }
+  // }
 
   function _transferAndPay(
     IERC20withDec usdc,
@@ -221,24 +221,24 @@ contract Borrower is BaseUpgradeablePausable, BaseRelayRecipient, IBorrower {
     invoke(address(erc20), _data);
   }
 
-  function swapOnOneInch(
-    address fromToken,
-    address toToken,
-    uint256 originAmount,
-    uint256 minTargetAmount,
-    uint256[] calldata exchangeDistribution
-  ) internal {
-    bytes memory _data = abi.encodeWithSignature(
-      "swap(address,address,uint256,uint256,uint256[],uint256)",
-      fromToken,
-      toToken,
-      originAmount,
-      minTargetAmount,
-      exchangeDistribution,
-      0
-    );
-    invoke(config.oneInchAddress(), _data);
-  }
+  // function swapOnOneInch(
+  //   address fromToken,
+  //   address toToken,
+  //   uint256 originAmount,
+  //   uint256 minTargetAmount,
+  //   uint256[] calldata exchangeDistribution
+  // ) internal {
+  //   bytes memory _data = abi.encodeWithSignature(
+  //     "swap(address,address,uint256,uint256,uint256[],uint256)",
+  //     fromToken,
+  //     toToken,
+  //     originAmount,
+  //     minTargetAmount,
+  //     exchangeDistribution,
+  //     0
+  //   );
+  //   invoke(config.oneInchAddress(), _data);
+  // }
 
   /**
    * @notice Performs a generic transaction.

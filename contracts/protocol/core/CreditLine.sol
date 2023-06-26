@@ -211,7 +211,7 @@ contract CreditLine is BaseUpgradeablePausable, ICreditLine {
     return handlePayment(getUSDCBalance(address(this)), timeToAssess);
   }
 
-  function calculateNextDueTime() internal view returns (uint256) {
+  function calculateNextDueTime() public view returns (uint256) {
     uint256 newNextDueTime = nextDueTime;
     uint256 secondsPerPeriod = paymentPeriodInDays.mul(SECONDS_PER_DAY);
     uint256 curTimestamp = currentTime();
@@ -308,6 +308,20 @@ contract CreditLine is BaseUpgradeablePausable, ICreditLine {
       setInterestAccruedAsOf(timestamp);
       totalInterestAccrued = totalInterestAccrued.add(interestAccrued);
     }
+    return (interestOwed.add(interestAccrued), principalOwed.add(principalAccrued));
+  }
+
+  function getInterestAndPrincipalOwedAsOfCurrent() public view returns (uint256, uint256){
+    uint256 timeToAssess = calculateNextDueTime();
+    if (timeToAssess > currentTime()) {
+      uint256 secondsPerPeriod = paymentPeriodInDays.mul(SECONDS_PER_DAY);
+      timeToAssess = timeToAssess.sub(secondsPerPeriod);
+    }
+    (uint256 interestAccrued, uint256 principalAccrued) = Accountant.calculateInterestAndPrincipalAccrued(
+      this,
+      timeToAssess,
+      config.getLatenessGracePeriodInDays()
+    );
     return (interestOwed.add(interestAccrued), principalOwed.add(principalAccrued));
   }
 
