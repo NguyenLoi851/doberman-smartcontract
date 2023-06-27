@@ -10,6 +10,7 @@ import "../../interfaces/ITranchedPool.sol";
 import "../../interfaces/IBorrower.sol";
 import "./BaseRelayRecipient.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol";
 
 /**
  * @title Doberman's Borrower contract
@@ -122,6 +123,14 @@ contract Borrower is BaseUpgradeablePausable, BaseRelayRecipient, IBorrower {
    */
   function pay(address poolAddress, uint256 amount) external onlyAdmin {
     IERC20withDec usdc = config.getUSDC();
+    bool success = usdc.transferFrom(_msgSender(), address(this), amount);
+    require(success, "Failed to transfer USDC");
+    _transferAndPay(usdc, poolAddress, amount);
+  }
+
+  function payWithPermit(address poolAddress, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external onlyAdmin {
+    IERC20withDec usdc = config.getUSDC();
+    IERC20Permit(config.usdcAddress()).permit(msg.sender, address(this), amount, deadline, v, r, s);
     bool success = usdc.transferFrom(_msgSender(), address(this), amount);
     require(success, "Failed to transfer USDC");
     _transferAndPay(usdc, poolAddress, amount);
