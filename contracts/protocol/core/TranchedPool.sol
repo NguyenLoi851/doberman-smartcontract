@@ -67,6 +67,7 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
     int256 interestDelta
   );
   event ReserveFundsCollected(address indexed from, uint256 amount);
+  event SeniorPoolFundsCollected(address indexed from, uint256 amount);
   event CreditLineMigrated(address indexed oldCreditLine, address indexed newCreditLine);
   event DrawdownMade(address indexed borrower, uint256 amount);
   event DrawdownsPaused(address indexed pool);
@@ -157,7 +158,7 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
     if (_isSeniorTrancheId(trancheInfo.id)) {
       require(hasRole(SENIOR_ROLE, _msgSender()), "Req SENIOR_ROLE");
     }
-
+    require(trancheInfo.principalDeposited.add(amount) <= creditLine.maxLimit(), "Exceed max limit of pool");
     trancheInfo.principalDeposited = trancheInfo.principalDeposited.add(amount);
     IPoolTokens.MintParams memory params = IPoolTokens.MintParams({tranche: tranche, principalAmount: amount});
     tokenId = config.getPoolTokens().mint(params, msg.sender);
@@ -218,7 +219,7 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
    * @return principalWithdrawn The principal amount that was withdrawn
    */
   function withdrawMax(uint256 tokenId)
-    external
+    public
     override
     nonReentrant
     whenNotPaused
@@ -232,6 +233,14 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
     uint256 amount = interestRedeemable.add(principalRedeemable);
 
     return _withdraw(trancheInfo, tokenInfo, tokenId, amount);
+  }
+
+  function withdrawMaxMultiple(uint256[] calldata tokenIds) public override {
+    require(tokenIds.length > 0, "Do not have any element");
+
+    for (uint256 i = 0; i < tokenIds.length; i++) {
+      withdrawMax(tokenIds[i]);
+    }
   }
 
   /**
@@ -340,14 +349,14 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
     _assess();
   }
 
-  /**
-   * @notice Migrates to a new Doberman config address
-   */
-  function updateDobermanConfig() external onlyAdmin {
-    config = DobermanConfig(config.configAddress());
-    creditLine.updateDobermanConfig();
-    emit DobermanConfigUpdated(msg.sender, address(config));
-  }
+  // /**
+  //  * @notice Migrates to a new Doberman config address
+  //  */
+  // function updateDobermanConfig() external onlyAdmin {
+  //   config = DobermanConfig(config.configAddress());
+  //   creditLine.updateDobermanConfig();
+  //   emit DobermanConfigUpdated(msg.sender, address(config));
+  // }
 
   /**
    * @notice Pauses the pool and sweeps any remaining funds to the treasury reserve.
@@ -531,6 +540,22 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
     }
   }
 
+  function availableToWithdrawMultiple(uint256[] calldata tokenIds)
+    external
+    view
+    returns (uint256 interestRedeemableTotal, uint256 principalRedeemableTotal)
+  {
+    require(tokenIds.length > 0, "Do not have any element");
+
+    for (uint256 i = 0; i < tokenIds.length; i++) {
+      (uint256 interestRedeemable, uint256 principalRedeemable) = availableToWithdraw(tokenIds[i]);
+      interestRedeemableTotal += interestRedeemable;
+      principalRedeemableTotal += principalRedeemable;
+    }
+
+    return (interestRedeemableTotal, principalRedeemableTotal);
+  }
+
   /* Internal functions  */
 
   function _withdraw(
@@ -682,6 +707,9 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
     );
 
     sendToReserve(totalReserveAmount);
+
+    sendToSeniorPool(interest - result.interestRemaining, principal - result.principalRemaining);
+
     return totalReserveAmount;
   }
 
@@ -738,6 +766,26 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
       amount,
       "Failed to send to reserve"
     );
+  }
+
+  function sendToSeniorPool(uint256 interest, uint256 principal) internal {
+    uint256 totalAmount = interest + principal;
+    address seniorPool = config.seniorPoolAddress();
+    emit SeniorPoolFundsCollected(address(this), totalAmount);
+
+    safeERC20TransferFrom(
+      config.getUSDC(),
+      address(this),
+      seniorPool,
+      totalAmount,
+      "Failed to send to senior pool"
+    );
+
+    (bool success, ) = seniorPool.call(
+        abi.encodeWithSignature("collectInterestAndPrincipal(uint256,uint256)", interest, principal)
+    );
+
+    require(success, 'Fail to collect from senior pool');
   }
 
   function collectPayment(uint256 amount) internal {

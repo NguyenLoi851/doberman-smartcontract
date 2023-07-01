@@ -15,7 +15,7 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
             }, 30)
         })
 
-        const pool = (await deployments.get('SeniorPool_Implementation')).address
+        const pool = (await deployments.get('SeniorPool')).address
 
         console.log('----- START VERIFICATION -----');
 
@@ -30,5 +30,5 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
 }
 
 verification.tags = ['VERIFICATION_SENIOR_POOL']
-
+verification.dependencies = ['SENIOR_POOL']
 export default verification

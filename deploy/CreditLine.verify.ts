@@ -15,15 +15,20 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
             }, 30)
         })
 
-        const accountant = (await deployments.get('Accountant')).address
-
         console.log('----- START VERIFICATION -----');
 
-        await hre.run('verify:verify', {
-            address: accountant,
-            constructorArguments: [],
-            contract: "contracts/protocol/core/Accountant.sol:Accountant"
-        })    
+        try {
+            const accountant = (await deployments.get('Accountant')).address
+
+            await hre.run('verify:verify', {
+                address: accountant,
+                constructorArguments: [],
+                contract: "contracts/protocol/core/Accountant.sol:Accountant"
+            })
+        } catch (error) {
+            console.log(error)
+        }
+
 
         const creditLine = (await deployments.get('CreditLine')).address
 

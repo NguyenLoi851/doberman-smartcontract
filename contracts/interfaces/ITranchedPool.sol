@@ -103,4 +103,6 @@ abstract contract ITranchedPool {
     returns (uint256 interestWithdrawn, uint256 principalWithdrawn);
 
   function withdrawMultiple(uint256[] calldata tokenIds, uint256[] calldata amounts) external virtual;
+  
+  function withdrawMaxMultiple(uint256[] calldata tokenIds) external virtual;
 }

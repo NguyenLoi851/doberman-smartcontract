@@ -429,6 +429,13 @@ contract SeniorPool is BaseUpgradeablePausable, ISeniorPool {
     return amount.mul(exchangeRate).div(10**(18 + usdcDecimals - cUSDCDecimals)).div(10**2);
   }
 
+  function collectInterestAndPrincipal(
+    uint256 interest,
+    uint256 principal
+  ) external{
+    _collectInterestAndPrincipal(msg.sender, interest, principal);
+  }
+
   function _collectInterestAndPrincipal(
     address from,
     uint256 interest,

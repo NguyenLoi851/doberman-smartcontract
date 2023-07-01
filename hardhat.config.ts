@@ -279,7 +279,7 @@ const config: HardhatUserConfig = {
     runOnCompile: true,
     strict: true,
     alphaSort: true,
-    only: ['Lock.sol'],
+    // only: ['Lock.sol'],
   }
 };
 

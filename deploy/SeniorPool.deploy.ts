@@ -19,14 +19,14 @@ const deploySeniorPool: DeployFunction = async (
     libraries: {
       Accountant: accountantAddress,
     },
-    proxy: {
-      proxyContract: 'OpenZeppelinTransparentProxy',
-      upgradeIndex: 0,
-      execute: {
-        methodName: 'initialize',
-        args: [deployer, configAddress]
-      }
-    },
+    // proxy: {
+    //   proxyContract: 'OpenZeppelinTransparentProxy',
+    //   upgradeIndex: 0,
+    //   execute: {
+    //     methodName: 'initialize',
+    //     args: [deployer, configAddress]
+    //   }
+    // },
   });
 };
 

@@ -15,15 +15,20 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
             }, 30)
         })
 
-        const tranchingLogic = (await deployments.get('TranchingLogic')).address
 
         console.log('----- START VERIFICATION -----');
 
-        await hre.run('verify:verify', {
-            address: tranchingLogic,
-            constructorArguments: [],
-            contract: "contracts/protocol/core/TranchingLogic.sol:TranchingLogic"
-        })    
+        try {
+            const tranchingLogic = (await deployments.get('TranchingLogic')).address
+
+            await hre.run('verify:verify', {
+                address: tranchingLogic,
+                constructorArguments: [],
+                contract: "contracts/protocol/core/TranchingLogic.sol:TranchingLogic"
+            })    
+        } catch (error) {
+            console.log(error)
+        }
 
         const tranchedPool = (await deployments.get('TranchedPool')).address
 
