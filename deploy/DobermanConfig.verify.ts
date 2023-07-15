@@ -30,6 +30,7 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
 }
 
 verification.tags = ['VERIFICATION_CONFIG']
+verification.dependencies = ['CONFIG']
 // verification.skip = () => Promise.resolve(true);
 
 export default verification

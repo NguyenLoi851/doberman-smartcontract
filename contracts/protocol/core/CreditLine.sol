@@ -10,6 +10,9 @@ import "../../interfaces/IERC20withDec.sol";
 import "../../interfaces/ICreditLine.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
+import "../../library/SafeERC20Transfer.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol";
+
 /**
  * @title CreditLine
  * @notice A contract that represents the agreement between Backers and
@@ -20,12 +23,13 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
  */
 
 // solhint-disable-next-line max-states-count
-contract CreditLine is BaseUpgradeablePausable, ICreditLine {
+contract CreditLine is BaseUpgradeablePausable, ICreditLine, SafeERC20Transfer {
   using SafeMath for uint256;
 
   uint256 public constant SECONDS_PER_DAY = 60;
 
   event DobermanConfigUpdated(address indexed who, address configAddress);
+  event Bid(address indexed winner, uint256 livePrice);
 
   // Credit line terms
   address public override borrower;
@@ -36,6 +40,9 @@ contract CreditLine is BaseUpgradeablePausable, ICreditLine {
   uint256 public override termInDays;
   uint256 public override principalGracePeriodInDays;
   uint256 public override lateFeeApr;
+  uint256 public override auctionEnd;
+  address public auctionWinner;
+  uint256 public auctionLivePrice;
 
   // Accounting variables
   uint256 public override balance;
@@ -112,6 +119,30 @@ contract CreditLine is BaseUpgradeablePausable, ICreditLine {
   function updateDobermanConfig() external onlyAdmin {
     config = DobermanConfig(config.configAddress());
     emit DobermanConfigUpdated(msg.sender, address(config));
+  }
+
+  function setAuctionEnd(uint256 newAuctionEnd) public onlyAdmin {
+    _setAuctionEnd(newAuctionEnd);
+  }
+
+  function _setAuctionEnd(uint256 newAuctionEnd) internal {
+    auctionEnd = newAuctionEnd;
+  }
+
+  function setAuctionWinner(address newAuctionWinner) public onlyAdmin {
+    _setAuctionWinner(newAuctionWinner);
+  }
+
+  function _setAuctionWinner(address newAuctionWinner) internal {
+    auctionWinner = newAuctionWinner;
+  }
+
+  function setAuctionLivePrice(uint256 newAuctionLivePrice) public onlyAdmin {
+    _setAuctionLivePrice(newAuctionLivePrice);
+  }
+
+  function _setAuctionLivePrice(uint256 newAuctionLivePrice) internal {
+    auctionLivePrice = newAuctionLivePrice;
   }
 
   function setLateFeeApr(uint256 newLateFeeApr) external onlyAdmin {
@@ -354,5 +385,41 @@ contract CreditLine is BaseUpgradeablePausable, ICreditLine {
 
   function getUSDCBalance(address _address) internal view returns (uint256) {
     return config.getUSDC().balanceOf(_address);
+  }
+
+  function bidWithPermit(uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+    uint256 timestamp = currentTime();
+    require((timestamp > termEndTime + paymentPeriodInDays.mul(SECONDS_PER_DAY)) && balance > 0, "Loans is on time or fully repaid");
+
+    // start bid
+    if(auctionEnd == 0){
+      _setAuctionEnd(timestamp.add(SECONDS_PER_DAY.mul(paymentPeriodInDays)));
+      (uint256 interestOwe, uint256 principalOwe) = getInterestAndPrincipalOwedAsOfCurrent();
+      require(amount >=interestOwe + principalOwe, "Start auction bid too low");
+    }else {
+      require(timestamp <= auctionEnd, "Auction end");
+      uint256 increase = config.getMinBidIncrease() + 10000;
+      require(amount * 10000 >= auctionLivePrice * increase, "Bid too low");
+    }
+
+    if(auctionEnd - timestamp <= 30 seconds) {
+      _setAuctionEnd(auctionEnd + 30 seconds);
+    }
+    
+    // return token to previous winner
+    // start bid not need to execute
+    if(auctionWinner != address(0)){
+      safeERC20Transfer(config.getUSDC(), auctionWinner, auctionLivePrice);
+    }
+
+    // new winner transfer token to pool
+    IERC20Permit(config.usdcAddress()).permit(msg.sender, address(this), amount, deadline, v, r, s);
+    safeERC20TransferFrom(config.getUSDC(), msg.sender, address(this), amount);
+
+    // update auction info
+    _setAuctionWinner(msg.sender);
+    _setAuctionLivePrice(amount);
+
+    emit Bid(msg.sender, amount);
   }
 }

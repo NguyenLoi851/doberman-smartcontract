@@ -406,68 +406,68 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
    * @param _termInDays The new term in days
    * @param _lateFeeApr The new late fee APR
    */
-  function migrateCreditLine(
-    address _borrower,
-    uint256 _maxLimit,
-    uint256 _interestApr,
-    uint256 _paymentPeriodInDays,
-    uint256 _termInDays,
-    uint256 _lateFeeApr,
-    uint256 _principalGracePeriodInDays
-  ) public onlyAdmin {
-    require(_borrower != address(0), "Borrower must not be empty");
-    require(_paymentPeriodInDays != 0, "Payment period invalid");
-    require(_termInDays != 0, "Term must not be empty");
+  // function migrateCreditLine(
+  //   address _borrower,
+  //   uint256 _maxLimit,
+  //   uint256 _interestApr,
+  //   uint256 _paymentPeriodInDays,
+  //   uint256 _termInDays,
+  //   uint256 _lateFeeApr,
+  //   uint256 _principalGracePeriodInDays
+  // ) public onlyAdmin {
+  //   require(_borrower != address(0), "Borrower must not be empty");
+  //   require(_paymentPeriodInDays != 0, "Payment period invalid");
+  //   require(_termInDays != 0, "Term must not be empty");
 
-    address originalClAddr = address(creditLine);
+  //   address originalClAddr = address(creditLine);
 
-    createAndSetCreditLine(
-      _borrower,
-      _maxLimit,
-      _interestApr,
-      _paymentPeriodInDays,
-      _termInDays,
-      _lateFeeApr,
-      _principalGracePeriodInDays
-    );
+  //   createAndSetCreditLine(
+  //     _borrower,
+  //     _maxLimit,
+  //     _interestApr,
+  //     _paymentPeriodInDays,
+  //     _termInDays,
+  //     _lateFeeApr,
+  //     _principalGracePeriodInDays
+  //   );
 
-    address newClAddr = address(creditLine);
-    TranchingLogic.migrateAccountingVariables(originalClAddr, newClAddr);
-    TranchingLogic.closeCreditLine(originalClAddr);
-    address originalBorrower = IV2CreditLine(originalClAddr).borrower();
-    address newBorrower = IV2CreditLine(newClAddr).borrower();
-    // Ensure Roles
-    if (originalBorrower != newBorrower) {
-      revokeRole(LOCKER_ROLE, originalBorrower);
-      grantRole(LOCKER_ROLE, newBorrower);
-    }
-    // Transfer any funds to new CL
-    uint256 clBalance = config.getUSDC().balanceOf(originalClAddr);
-    if (clBalance > 0) {
-      safeERC20TransferFrom(config.getUSDC(), originalClAddr, newClAddr, clBalance);
-    }
-    emit CreditLineMigrated(originalClAddr, newClAddr);
-  }
+  //   address newClAddr = address(creditLine);
+  //   TranchingLogic.migrateAccountingVariables(originalClAddr, newClAddr);
+  //   TranchingLogic.closeCreditLine(originalClAddr);
+  //   address originalBorrower = IV2CreditLine(originalClAddr).borrower();
+  //   address newBorrower = IV2CreditLine(newClAddr).borrower();
+  //   // Ensure Roles
+  //   if (originalBorrower != newBorrower) {
+  //     revokeRole(LOCKER_ROLE, originalBorrower);
+  //     grantRole(LOCKER_ROLE, newBorrower);
+  //   }
+  //   // Transfer any funds to new CL
+  //   uint256 clBalance = config.getUSDC().balanceOf(originalClAddr);
+  //   if (clBalance > 0) {
+  //     safeERC20TransferFrom(config.getUSDC(), originalClAddr, newClAddr, clBalance);
+  //   }
+  //   emit CreditLineMigrated(originalClAddr, newClAddr);
+  // }
 
   /**
    * @notice Migrates to a new creditline without copying the accounting variables
    */
-  function migrateAndSetNewCreditLine(address newCl) public onlyAdmin {
-    require(newCl != address(0), "Creditline cannot be empty");
-    address originalClAddr = address(creditLine);
-    // Transfer any funds to new CL
-    uint256 clBalance = config.getUSDC().balanceOf(originalClAddr);
-    if (clBalance > 0) {
-      safeERC20TransferFrom(config.getUSDC(), originalClAddr, newCl, clBalance);
-    }
-    TranchingLogic.closeCreditLine(originalClAddr);
-    // set new CL
-    creditLine = IV2CreditLine(newCl);
-    // sanity check that the new address is in fact a creditline
-    creditLine.limit();
+  // function migrateAndSetNewCreditLine(address newCl) public onlyAdmin {
+  //   require(newCl != address(0), "Creditline cannot be empty");
+  //   address originalClAddr = address(creditLine);
+  //   // Transfer any funds to new CL
+  //   uint256 clBalance = config.getUSDC().balanceOf(originalClAddr);
+  //   if (clBalance > 0) {
+  //     safeERC20TransferFrom(config.getUSDC(), originalClAddr, newCl, clBalance);
+  //   }
+  //   TranchingLogic.closeCreditLine(originalClAddr);
+  //   // set new CL
+  //   creditLine = IV2CreditLine(newCl);
+  //   // sanity check that the new address is in fact a creditline
+  //   creditLine.limit();
 
-    emit CreditLineMigrated(originalClAddr, address(creditLine));
-  }
+  //   emit CreditLineMigrated(originalClAddr, address(creditLine));
+  // }
 
   // CreditLine proxy method
   function setLimit(uint256 newAmount) external onlyAdmin {
@@ -582,11 +582,19 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
     uint256 principalToRedeem = Math.min(principalRedeemable, amount.sub(interestToRedeem));
 
     config.getPoolTokens().redeem(tokenId, principalToRedeem, interestToRedeem);
+    uint256 creditLineBalance = getUSDCBalance(address(creditLine));
+    if(creditLineBalance > 0){
+      safeERC20TransferFrom(config.getUSDC(), address(creditLine), address(this), creditLineBalance);
+    }
     safeERC20TransferFrom(config.getUSDC(), address(this), msg.sender, principalToRedeem.add(interestToRedeem));
 
     emit WithdrawalMade(msg.sender, tokenInfo.tranche, tokenId, interestToRedeem, principalToRedeem);
 
     return (interestToRedeem, principalToRedeem);
+  }
+
+  function getUSDCBalance(address _address) internal view returns (uint256) {
+    return config.getUSDC().balanceOf(_address);
   }
 
   function _isSeniorTrancheId(uint256 trancheId) internal pure returns (bool) {
@@ -598,6 +606,11 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
     view
     returns (uint256 interestRedeemable, uint256 principalRedeemable)
   {
+    uint256 timestamp = currentTime();
+    // Borrower do not repaid enough until deadline and auction do not end or start, return 0
+    if((timestamp > creditLine.termEndTime() + creditLine.paymentPeriodInDays().mul(SECONDS_PER_DAY)) && creditLine.balance() > 0 && (creditLine.auctionEnd() == 0 || timestamp < creditLine.auctionEnd())) {
+      return (0, 0);
+    }
     // This supports withdrawing before or after locking because principal share price starts at 1
     // and is set to 0 on lock. Interest share price is always 0 until interest payments come back, when it increases
     uint256 maxPrincipalRedeemable = sharePriceToUsdc(trancheInfo.principalSharePrice, tokenInfo.principalAmount);
@@ -797,6 +810,7 @@ contract TranchedPool is BaseUpgradeablePausable, ITranchedPool, SafeERC20Transf
     // possible to game rewards by sandwiching an interest payment to an unlocked pool
     // It also causes issues trying to allocate payments to an empty slice (divide by zero)
     require(locked(), "Pool is not locked");
+    require(currentTime() <= creditLine.termEndTime() + creditLine.paymentPeriodInDays().mul(SECONDS_PER_DAY), "Late to repay, asset is auctioned");
 
     uint256 interestAccrued = creditLine.totalInterestAccrued();
     (uint256 paymentRemaining, uint256 interestPayment, uint256 principalPayment) = creditLine.assess();

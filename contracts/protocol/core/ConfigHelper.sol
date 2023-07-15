@@ -186,4 +186,8 @@ library ConfigHelper {
   function getLeverageRatio(DobermanConfig config) internal view returns (uint256) {
     return config.getNumber(uint256(ConfigOptions.Numbers.LeverageRatio));
   }
+
+  function getMinBidIncrease(DobermanConfig config) internal view returns (uint256) {
+    return config.getNumber(uint256(ConfigOptions.Numbers.MinBidIncrease));
+  }
 }

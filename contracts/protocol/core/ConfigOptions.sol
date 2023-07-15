@@ -21,7 +21,8 @@ library ConfigOptions {
     LatenessMaxDays,
     DrawdownPeriodInSeconds,
     TransferRestrictionPeriodInDays,
-    LeverageRatio
+    LeverageRatio,
+    MinBidIncrease
   }
   enum Addresses {
     Pool,
