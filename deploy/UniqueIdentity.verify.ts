@@ -15,7 +15,7 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
             }, 30)
         })
 
-        const uniqueIdentity = (await deployments.get('UniqueIdentity_Implementation')).address
+        const uniqueIdentity = (await deployments.get('UniqueIdentity')).address
 
         console.log('----- START VERIFICATION -----');
 

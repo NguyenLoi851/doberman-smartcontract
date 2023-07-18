@@ -13,14 +13,14 @@ const deployUniqueIdentity: DeployFunction = async (
     args: [],
     log: true,
     deterministicDeployment: false,
-    proxy: {
-      proxyContract: 'OpenZeppelinTransparentProxy',
-      upgradeIndex: 0,
-      execute: {
-        methodName: 'initialize',
-        args: [deployer, 'https://google.com']
-      }
-    },
+    // proxy: {
+    //   proxyContract: 'OpenZeppelinTransparentProxy',
+    //   upgradeIndex: 0,
+    //   execute: {
+    //     methodName: 'initialize',
+    //     args: [deployer, 'https://google.com']
+    //   }
+    // },
   });
 };
 

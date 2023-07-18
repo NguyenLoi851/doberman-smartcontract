@@ -35,6 +35,25 @@ contract UniqueIdentity is ERC1155PresetPauserUpgradeable, IUniqueIdentity {
   mapping(address => uint256) public nonces;
   mapping(uint256 => bool) public supportedUIDTypes;
 
+  bytes32 public DOMAIN_SEPARATOR = keccak256(
+    abi.encode(
+      keccak256(
+        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+      ),
+      keccak256(bytes(name())),
+      keccak256(bytes(version)),
+      block.chainid,
+      address(this)
+    )
+  );
+
+  // bytes32 public constant MINT_ALLOWANCE_TYPEHASH = keccak256("MintAllowance(address account,uint256 id,uint256 expiresAt,uint256 nonces)");
+  bytes32 public constant MINT_ALLOWANCE_TYPEHASH =
+      0x93433fbc09336ca8d52f54b6727e2a3c17e767104d1b90a87086b0792a8b7f97;
+
+  /// @dev Version used for fund signature
+  string public constant version = "1";
+
   function initialize(address owner, string memory uri) public initializer {
     require(owner != address(0), "Owner address cannot be empty");
 
@@ -115,6 +134,20 @@ contract UniqueIdentity is ERC1155PresetPauserUpgradeable, IUniqueIdentity {
     super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
   }
 
+  function _buildDomainSeparator() internal {
+    DOMAIN_SEPARATOR = keccak256(
+      abi.encode(
+        keccak256(
+          "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+        ),
+        keccak256(bytes(name())),
+        keccak256(bytes(version)),
+        block.chainid,
+        address(this)
+      )
+    );
+  }
+
   modifier onlySigner(
     address account,
     uint256 id,
@@ -123,9 +156,27 @@ contract UniqueIdentity is ERC1155PresetPauserUpgradeable, IUniqueIdentity {
   ) {
     require(block.timestamp < expiresAt, "Signature has expired");
 
-    bytes32 hash = keccak256(abi.encodePacked(account, id, expiresAt, address(this), nonces[account], block.chainid));
-    bytes32 ethSignedMessage = ECDSAUpgradeable.toEthSignedMessageHash(hash);
-    require(hasRole(SIGNER_ROLE, ECDSAUpgradeable.recover(ethSignedMessage, signature)), "Invalid signer");
+    if(DOMAIN_SEPARATOR == bytes32(0)) {
+      _buildDomainSeparator();
+    }
+
+    bytes32 digest = keccak256(
+      abi.encodePacked(
+        "\x19\x01",
+        DOMAIN_SEPARATOR,
+        keccak256(
+          abi.encode(
+            MINT_ALLOWANCE_TYPEHASH,
+            address(account),
+            id,
+            expiresAt,
+            nonces[account]
+          )
+        )
+      )
+    );
+
+    require(hasRole(SIGNER_ROLE, ECDSAUpgradeable.recover(digest, signature)), "Invalid signer");
     _;
   }
 
