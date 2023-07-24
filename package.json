@@ -3,6 +3,7 @@
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
+    "coverage": "hardhat coverage",
     "deploy:goerli": "hardhat deploy --network goerli",
     "deploy:binancetest": "hardhat deploy --network binancetest",
     "deploy:sepolia": "hardhat deploy ---network sepolia",
@@ -30,8 +31,9 @@
     "@openzeppelin/contracts-upgradeable": "^4.8.3",
     "@typechain/ethers-v5": "^10.2.1",
     "@typechain/hardhat": "^6.1.6",
+    "crypto": "^1.0.1",
     "dotenv": "^16.0.3",
-    "ethers": "^6.4.0",
+    "ethers": "5.4.7",
     "hardhat-contract-sizer": "^2.9.0",
     "hardhat-deploy": "^0.11.29"
   }

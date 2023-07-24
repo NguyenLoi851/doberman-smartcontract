@@ -47,6 +47,9 @@ const config: HardhatUserConfig = {
           optimizer: {
             enabled: true,
             runs: 100,
+            details: {
+              yul: true
+            }
           },
         },
       },
@@ -280,6 +283,9 @@ const config: HardhatUserConfig = {
     strict: true,
     alphaSort: true,
     // only: ['Lock.sol'],
+  },
+  mocha: {
+    timeout: 100000000
   }
 };
 
