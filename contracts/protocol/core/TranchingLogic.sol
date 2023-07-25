@@ -438,32 +438,32 @@ library TranchingLogic {
         return (interestRemaining, principalRemaining);
     }
 
-    function migrateAccountingVariables(
-        address originalClAddr,
-        address newClAddr
-    ) public {
-        IV2CreditLine originalCl = IV2CreditLine(originalClAddr);
-        IV2CreditLine newCl = IV2CreditLine(newClAddr);
+    // function migrateAccountingVariables(
+    //     address originalClAddr,
+    //     address newClAddr
+    // ) public {
+    //     IV2CreditLine originalCl = IV2CreditLine(originalClAddr);
+    //     IV2CreditLine newCl = IV2CreditLine(newClAddr);
 
-        // Copy over all accounting variables
-        newCl.setBalance(originalCl.balance());
-        newCl.setLimit(originalCl.limit());
-        newCl.setInterestOwed(originalCl.interestOwed());
-        newCl.setPrincipalOwed(originalCl.principalOwed());
-        newCl.setTermEndTime(originalCl.termEndTime());
-        newCl.setNextDueTime(originalCl.nextDueTime());
-        newCl.setInterestAccruedAsOf(originalCl.interestAccruedAsOf());
-        newCl.setLastFullPaymentTime(originalCl.lastFullPaymentTime());
-        newCl.setTotalInterestAccrued(originalCl.totalInterestAccrued());
-    }
+    //     // Copy over all accounting variables
+    //     newCl.setBalance(originalCl.balance());
+    //     newCl.setLimit(originalCl.limit());
+    //     newCl.setInterestOwed(originalCl.interestOwed());
+    //     newCl.setPrincipalOwed(originalCl.principalOwed());
+    //     newCl.setTermEndTime(originalCl.termEndTime());
+    //     newCl.setNextDueTime(originalCl.nextDueTime());
+    //     newCl.setInterestAccruedAsOf(originalCl.interestAccruedAsOf());
+    //     newCl.setLastFullPaymentTime(originalCl.lastFullPaymentTime());
+    //     newCl.setTotalInterestAccrued(originalCl.totalInterestAccrued());
+    // }
 
-    function closeCreditLine(address originalCl) public {
-        // Close out old CL
-        IV2CreditLine oldCreditLine = IV2CreditLine(originalCl);
-        oldCreditLine.setBalance(0);
-        oldCreditLine.setLimit(0);
-        oldCreditLine.setMaxLimit(0);
-    }
+    // function closeCreditLine(address originalCl) public {
+    //     // Close out old CL
+    //     IV2CreditLine oldCreditLine = IV2CreditLine(originalCl);
+    //     oldCreditLine.setBalance(0);
+    //     oldCreditLine.setLimit(0);
+    //     oldCreditLine.setMaxLimit(0);
+    // }
 
     function desiredAmountFromSharePrice(
         uint256 desiredSharePrice,

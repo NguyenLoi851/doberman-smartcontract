@@ -146,9 +146,9 @@ contract SeniorPool is BaseUpgradeablePausable, ISeniorPool {
         require(usdcAmount > 0, "Must withdraw more than zero");
         // This MUST happen before calculating withdrawShares, otherwise the share price
         // changes between calculation and burning of Fidu, which creates a asset/liability mismatch
-        if (compoundBalance > 0) {
-            _sweepFromCompound();
-        }
+        // if (compoundBalance > 0) {
+        //     _sweepFromCompound();
+        // }
         uint256 withdrawShares = getNumShares(usdcAmount);
         return _withdraw(usdcAmount, withdrawShares);
     }
@@ -167,9 +167,9 @@ contract SeniorPool is BaseUpgradeablePausable, ISeniorPool {
         require(fiduAmount > 0, "Must withdraw more than zero");
         // This MUST happen before calculating withdrawShares, otherwise the share price
         // changes between calculation and burning of Fidu, which creates a asset/liability mismatch
-        if (compoundBalance > 0) {
-            _sweepFromCompound();
-        }
+        // if (compoundBalance > 0) {
+        //     _sweepFromCompound();
+        // }
         uint256 usdcAmount = getUSDCAmountFromShares(fiduAmount);
         uint256 withdrawShares = fiduAmount;
         return _withdraw(usdcAmount, withdrawShares);
@@ -190,21 +190,21 @@ contract SeniorPool is BaseUpgradeablePausable, ISeniorPool {
      * Requirements:
      *  - The caller must be an admin.
      */
-    function sweepToCompound() public override onlyAdmin whenNotPaused {
-        IERC20 usdc = config.getUSDC();
-        uint256 usdcBalance = usdc.balanceOf(address(this));
+    // function sweepToCompound() public override onlyAdmin whenNotPaused {
+    //     IERC20 usdc = config.getUSDC();
+    //     uint256 usdcBalance = usdc.balanceOf(address(this));
 
-        ICUSDCContract cUSDC = config.getCUSDCContract();
-        // Approve compound to the exact amount
-        bool success = usdc.approve(address(cUSDC), usdcBalance);
-        require(success, "Failed to approve USDC for compound");
+    //     ICUSDCContract cUSDC = config.getCUSDCContract();
+    //     // Approve compound to the exact amount
+    //     bool success = usdc.approve(address(cUSDC), usdcBalance);
+    //     require(success, "Failed to approve USDC for compound");
 
-        sweepToCompound(cUSDC, usdcBalance);
+    //     sweepToCompound(cUSDC, usdcBalance);
 
-        // Remove compound approval to be extra safe
-        success = config.getUSDC().approve(address(cUSDC), 0);
-        require(success, "Failed to approve USDC for compound");
-    }
+    //     // Remove compound approval to be extra safe
+    //     success = config.getUSDC().approve(address(cUSDC), 0);
+    //     require(success, "Failed to approve USDC for compound");
+    // }
 
     /**
      * @notice Moves any USDC from Compound back to the SeniorPool, and recognizes interest earned.
@@ -213,9 +213,9 @@ contract SeniorPool is BaseUpgradeablePausable, ISeniorPool {
      * Requirements:
      *  - The caller must be an admin.
      */
-    function sweepFromCompound() public override onlyAdmin whenNotPaused {
-        _sweepFromCompound();
-    }
+    // function sweepFromCompound() public override onlyAdmin whenNotPaused {
+    //     _sweepFromCompound();
+    // }
 
     /**
      * @notice Invest in an ITranchedPool's senior tranche using the senior pool's strategy
@@ -226,9 +226,9 @@ contract SeniorPool is BaseUpgradeablePausable, ISeniorPool {
     ) public override whenNotPaused nonReentrant {
         require(validPool(pool), "Pool must be valid");
 
-        if (compoundBalance > 0) {
-            _sweepFromCompound();
-        }
+        // if (compoundBalance > 0) {
+        //     _sweepFromCompound();
+        // }
 
         ISeniorPoolStrategy strategy = config.getSeniorPoolStrategy();
         uint256 amount = strategy.invest(this, pool);
@@ -279,72 +279,72 @@ contract SeniorPool is BaseUpgradeablePausable, ISeniorPool {
      *  made repayments that restore confidence that the full loan will be repaid.
      * @param tokenId the ID of an IPoolTokens token to be considered for writedown
      */
-    function writedown(
-        uint256 tokenId
-    ) public override whenNotPaused nonReentrant {
-        IPoolTokens poolTokens = config.getPoolTokens();
-        require(
-            address(this) == poolTokens.ownerOf(tokenId),
-            "Only tokens owned by the senior pool can be written down"
-        );
+    // function writedown(
+    //     uint256 tokenId
+    // ) public override whenNotPaused nonReentrant {
+    //     IPoolTokens poolTokens = config.getPoolTokens();
+    //     require(
+    //         address(this) == poolTokens.ownerOf(tokenId),
+    //         "Only tokens owned by the senior pool can be written down"
+    //     );
 
-        IPoolTokens.TokenInfo memory tokenInfo = poolTokens.getTokenInfo(
-            tokenId
-        );
-        ITranchedPool pool = ITranchedPool(tokenInfo.pool);
-        require(validPool(pool), "Pool must be valid");
+    //     IPoolTokens.TokenInfo memory tokenInfo = poolTokens.getTokenInfo(
+    //         tokenId
+    //     );
+    //     ITranchedPool pool = ITranchedPool(tokenInfo.pool);
+    //     require(validPool(pool), "Pool must be valid");
 
-        uint256 principalRemaining = tokenInfo.principalAmount.sub(
-            tokenInfo.principalRedeemed
-        );
+    //     uint256 principalRemaining = tokenInfo.principalAmount.sub(
+    //         tokenInfo.principalRedeemed
+    //     );
 
-        (
-            uint256 writedownPercent,
-            uint256 writedownAmount
-        ) = _calculateWritedown(pool, principalRemaining);
+    //     (
+    //         uint256 writedownPercent,
+    //         uint256 writedownAmount
+    //     ) = _calculateWritedown(pool, principalRemaining);
 
-        uint256 prevWritedownAmount = writedowns[pool];
+    //     uint256 prevWritedownAmount = writedowns[pool];
 
-        if (writedownPercent == 0 && prevWritedownAmount == 0) {
-            return;
-        }
+    //     if (writedownPercent == 0 && prevWritedownAmount == 0) {
+    //         return;
+    //     }
 
-        int256 writedownDelta = int256(prevWritedownAmount) -
-            int256(writedownAmount);
-        writedowns[pool] = writedownAmount;
-        distributeLosses(writedownDelta);
-        if (writedownDelta > 0) {
-            // If writedownDelta is positive, that means we got money back. So subtract from totalWritedowns.
-            totalWritedowns = totalWritedowns.sub(uint256(writedownDelta));
-        } else {
-            totalWritedowns = totalWritedowns.add(uint256(writedownDelta * -1));
-        }
-        emit PrincipalWrittenDown(address(pool), writedownDelta);
-    }
+    //     int256 writedownDelta = int256(prevWritedownAmount) -
+    //         int256(writedownAmount);
+    //     writedowns[pool] = writedownAmount;
+    //     distributeLosses(writedownDelta);
+    //     if (writedownDelta > 0) {
+    //         // If writedownDelta is positive, that means we got money back. So subtract from totalWritedowns.
+    //         totalWritedowns = totalWritedowns.sub(uint256(writedownDelta));
+    //     } else {
+    //         totalWritedowns = totalWritedowns.add(uint256(writedownDelta * -1));
+    //     }
+    //     emit PrincipalWrittenDown(address(pool), writedownDelta);
+    // }
 
     /**
      * @notice Calculates the writedown amount for a particular pool position
      * @param tokenId The token reprsenting the position
      * @return The amount in dollars the principal should be written down by
      */
-    function calculateWritedown(
-        uint256 tokenId
-    ) public view override returns (uint256) {
-        IPoolTokens.TokenInfo memory tokenInfo = config
-            .getPoolTokens()
-            .getTokenInfo(tokenId);
-        ITranchedPool pool = ITranchedPool(tokenInfo.pool);
+    // function calculateWritedown(
+    //     uint256 tokenId
+    // ) public view override returns (uint256) {
+    //     IPoolTokens.TokenInfo memory tokenInfo = config
+    //         .getPoolTokens()
+    //         .getTokenInfo(tokenId);
+    //     ITranchedPool pool = ITranchedPool(tokenInfo.pool);
 
-        uint256 principalRemaining = tokenInfo.principalAmount.sub(
-            tokenInfo.principalRedeemed
-        );
+    //     uint256 principalRemaining = tokenInfo.principalAmount.sub(
+    //         tokenInfo.principalRedeemed
+    //     );
 
-        (, uint256 writedownAmount) = _calculateWritedown(
-            pool,
-            principalRemaining
-        );
-        return writedownAmount;
-    }
+    //     (, uint256 writedownAmount) = _calculateWritedown(
+    //         pool,
+    //         principalRemaining
+    //     );
+    //     return writedownAmount;
+    // }
 
     /**
      * @notice Returns the net assests controlled by and owed to the pool
@@ -369,38 +369,38 @@ contract SeniorPool is BaseUpgradeablePausable, ISeniorPool {
 
     /* Internal Functions */
 
-    function _calculateWritedown(
-        ITranchedPool pool,
-        uint256 principal
-    )
-        internal
-        view
-        returns (uint256 writedownPercent, uint256 writedownAmount)
-    {
-        return
-            Accountant.calculateWritedownForPrincipal(
-                pool.creditLine(),
-                principal,
-                currentTime(),
-                config.getLatenessGracePeriodInDays(),
-                config.getLatenessMaxDays()
-            );
-    }
+    // function _calculateWritedown(
+    //     ITranchedPool pool,
+    //     uint256 principal
+    // )
+    //     internal
+    //     view
+    //     returns (uint256 writedownPercent, uint256 writedownAmount)
+    // {
+    //     return
+    //         Accountant.calculateWritedownForPrincipal(
+    //             pool.creditLine(),
+    //             principal,
+    //             currentTime(),
+    //             config.getLatenessGracePeriodInDays(),
+    //             config.getLatenessMaxDays()
+    //         );
+    // }
 
-    function currentTime() internal view virtual returns (uint256) {
-        return block.timestamp;
-    }
+    // function currentTime() internal view virtual returns (uint256) {
+    //     return block.timestamp;
+    // }
 
-    function distributeLosses(int256 writedownDelta) internal {
-        if (writedownDelta > 0) {
-            uint256 delta = usdcToSharePrice(uint256(writedownDelta));
-            sharePrice = sharePrice.add(delta);
-        } else {
-            // If delta is negative, convert to positive uint, and sub from sharePrice
-            uint256 delta = usdcToSharePrice(uint256(writedownDelta * -1));
-            sharePrice = sharePrice.sub(delta);
-        }
-    }
+    // function distributeLosses(int256 writedownDelta) internal {
+    //     if (writedownDelta > 0) {
+    //         uint256 delta = usdcToSharePrice(uint256(writedownDelta));
+    //         sharePrice = sharePrice.add(delta);
+    //     } else {
+    //         // If delta is negative, convert to positive uint, and sub from sharePrice
+    //         uint256 delta = usdcToSharePrice(uint256(writedownDelta * -1));
+    //         sharePrice = sharePrice.sub(delta);
+    //     }
+    // }
 
     function fiduMantissa() internal pure returns (uint256) {
         return uint256(10) ** uint256(18);
@@ -473,85 +473,85 @@ contract SeniorPool is BaseUpgradeablePausable, ISeniorPool {
         return userAmount;
     }
 
-    function sweepToCompound(
-        ICUSDCContract cUSDC,
-        uint256 usdcAmount
-    ) internal {
-        // Our current design requires we re-normalize by withdrawing everything and recognizing interest gains
-        // before we can add additional capital to Compound
-        require(
-            compoundBalance == 0,
-            "Cannot sweep when we already have a compound balance"
-        );
-        require(usdcAmount != 0, "Amount to sweep cannot be zero");
-        uint256 error = cUSDC.mint(usdcAmount);
-        require(error == 0, "Sweep to compound failed");
-        compoundBalance = usdcAmount;
-    }
+    // function sweepToCompound(
+    //     ICUSDCContract cUSDC,
+    //     uint256 usdcAmount
+    // ) internal {
+    //     // Our current design requires we re-normalize by withdrawing everything and recognizing interest gains
+    //     // before we can add additional capital to Compound
+    //     require(
+    //         compoundBalance == 0,
+    //         "Cannot sweep when we already have a compound balance"
+    //     );
+    //     require(usdcAmount != 0, "Amount to sweep cannot be zero");
+    //     uint256 error = cUSDC.mint(usdcAmount);
+    //     require(error == 0, "Sweep to compound failed");
+    //     compoundBalance = usdcAmount;
+    // }
 
-    function _sweepFromCompound() internal {
-        ICUSDCContract cUSDC = config.getCUSDCContract();
-        sweepFromCompound(cUSDC, cUSDC.balanceOf(address(this)));
-    }
+    // function _sweepFromCompound() internal {
+    //     ICUSDCContract cUSDC = config.getCUSDCContract();
+    //     sweepFromCompound(cUSDC, cUSDC.balanceOf(address(this)));
+    // }
 
-    function sweepFromCompound(
-        ICUSDCContract cUSDC,
-        uint256 cUSDCAmount
-    ) internal {
-        uint256 cBalance = compoundBalance;
-        require(cBalance != 0, "No funds on compound");
-        require(cUSDCAmount != 0, "Amount to sweep cannot be zero");
+    // function sweepFromCompound(
+    //     ICUSDCContract cUSDC,
+    //     uint256 cUSDCAmount
+    // ) internal {
+    //     uint256 cBalance = compoundBalance;
+    //     require(cBalance != 0, "No funds on compound");
+    //     require(cUSDCAmount != 0, "Amount to sweep cannot be zero");
 
-        IERC20 usdc = config.getUSDC();
-        uint256 preRedeemUSDCBalance = usdc.balanceOf(address(this));
-        uint256 cUSDCExchangeRate = cUSDC.exchangeRateCurrent();
-        uint256 redeemedUSDC = cUSDCToUSDC(cUSDCExchangeRate, cUSDCAmount);
+    //     IERC20 usdc = config.getUSDC();
+    //     uint256 preRedeemUSDCBalance = usdc.balanceOf(address(this));
+    //     uint256 cUSDCExchangeRate = cUSDC.exchangeRateCurrent();
+    //     uint256 redeemedUSDC = cUSDCToUSDC(cUSDCExchangeRate, cUSDCAmount);
 
-        uint256 error = cUSDC.redeem(cUSDCAmount);
-        uint256 postRedeemUSDCBalance = usdc.balanceOf(address(this));
-        require(error == 0, "Sweep from compound failed");
-        require(
-            postRedeemUSDCBalance.sub(preRedeemUSDCBalance) == redeemedUSDC,
-            "Unexpected redeem amount"
-        );
+    //     uint256 error = cUSDC.redeem(cUSDCAmount);
+    //     uint256 postRedeemUSDCBalance = usdc.balanceOf(address(this));
+    //     require(error == 0, "Sweep from compound failed");
+    //     require(
+    //         postRedeemUSDCBalance.sub(preRedeemUSDCBalance) == redeemedUSDC,
+    //         "Unexpected redeem amount"
+    //     );
 
-        uint256 interestAccrued = redeemedUSDC.sub(cBalance);
-        uint256 reserveAmount = interestAccrued.div(
-            config.getReserveDenominator()
-        );
-        uint256 poolAmount = interestAccrued.sub(reserveAmount);
+    //     uint256 interestAccrued = redeemedUSDC.sub(cBalance);
+    //     uint256 reserveAmount = interestAccrued.div(
+    //         config.getReserveDenominator()
+    //     );
+    //     uint256 poolAmount = interestAccrued.sub(reserveAmount);
 
-        _collectInterestAndPrincipal(address(this), poolAmount, 0);
+    //     _collectInterestAndPrincipal(address(this), poolAmount, 0);
 
-        if (reserveAmount > 0) {
-            sendToReserve(reserveAmount, address(cUSDC));
-        }
+    //     if (reserveAmount > 0) {
+    //         sendToReserve(reserveAmount, address(cUSDC));
+    //     }
 
-        compoundBalance = 0;
-    }
+    //     compoundBalance = 0;
+    // }
 
-    function cUSDCToUSDC(
-        uint256 exchangeRate,
-        uint256 amount
-    ) internal pure returns (uint256) {
-        // See https://compound.finance/docs#protocol-math
-        // But note, the docs and reality do not agree. Docs imply that that exchange rate is
-        // scaled by 1e18, but tests and mainnet forking make it appear to be scaled by 1e16
-        // 1e16 is also what Sheraz at Certik said.
-        uint256 usdcDecimals = 6;
-        uint256 cUSDCDecimals = 8;
+    // function cUSDCToUSDC(
+    //     uint256 exchangeRate,
+    //     uint256 amount
+    // ) internal pure returns (uint256) {
+    //     // See https://compound.finance/docs#protocol-math
+    //     // But note, the docs and reality do not agree. Docs imply that that exchange rate is
+    //     // scaled by 1e18, but tests and mainnet forking make it appear to be scaled by 1e16
+    //     // 1e16 is also what Sheraz at Certik said.
+    //     uint256 usdcDecimals = 6;
+    //     uint256 cUSDCDecimals = 8;
 
-        // We multiply in the following order, for the following reasons...
-        // Amount in cToken (1e8)
-        // Amount in USDC (but scaled by 1e16, cause that's what exchange rate decimals are)
-        // Downscale to cToken decimals (1e8)
-        // Downscale from cToken to USDC decimals (8 to 6)
-        return
-            amount
-                .mul(exchangeRate)
-                .div(10 ** (18 + usdcDecimals - cUSDCDecimals))
-                .div(10 ** 2);
-    }
+    //     // We multiply in the following order, for the following reasons...
+    //     // Amount in cToken (1e8)
+    //     // Amount in USDC (but scaled by 1e16, cause that's what exchange rate decimals are)
+    //     // Downscale to cToken decimals (1e8)
+    //     // Downscale from cToken to USDC decimals (8 to 6)
+    //     return
+    //         amount
+    //             .mul(exchangeRate)
+    //             .div(10 ** (18 + usdcDecimals - cUSDCDecimals))
+    //             .div(10 ** 2);
+    // }
 
     function collectInterestAndPrincipal(
         uint256 interest,

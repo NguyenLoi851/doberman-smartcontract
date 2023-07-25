@@ -23,9 +23,9 @@ abstract contract ISeniorPool {
 
   function withdrawInFidu(uint256 fiduAmount) external virtual returns (uint256 amount);
 
-  function sweepToCompound() public virtual;
+  // function sweepToCompound() public virtual;
 
-  function sweepFromCompound() public virtual;
+  // function sweepFromCompound() public virtual;
 
   function invest(ITranchedPool pool) public virtual;
 
@@ -33,9 +33,9 @@ abstract contract ISeniorPool {
 
   function redeem(uint256 tokenId) public virtual;
 
-  function writedown(uint256 tokenId) public virtual;
+  // function writedown(uint256 tokenId) public virtual;
 
-  function calculateWritedown(uint256 tokenId) public view virtual returns (uint256 writedownAmount);
+  // function calculateWritedown(uint256 tokenId) public view virtual returns (uint256 writedownAmount);
 
   function assets() public view virtual returns (uint256);
 

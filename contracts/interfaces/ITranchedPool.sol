@@ -65,7 +65,7 @@ abstract contract ITranchedPool {
 
   function lockPool() external virtual;
 
-  function initializeNextSlice(uint256 _fundableAt) external virtual;
+  // function initializeNextSlice(uint256 _fundableAt) external virtual;
 
   function totalJuniorDeposits() external view virtual returns (uint256);
 

@@ -410,18 +410,18 @@ contract TranchedPool is
         fundableAt = newFundableAt;
     }
 
-    function initializeNextSlice(
-        uint256 _fundableAt
-    ) external override onlyLocker whenNotPaused {
-        require(locked(), "Current slice still active");
-        require(!creditLine.isLate(), "Creditline is late");
-        require(
-            creditLine.withinPrincipalGracePeriod(),
-            "Beyond principal grace period"
-        );
-        _initializeNextSlice(_fundableAt);
-        emit SliceCreated(address(this), poolSlices.length.sub(1));
-    }
+    // function initializeNextSlice(
+    //     uint256 _fundableAt
+    // ) external override onlyLocker whenNotPaused {
+    //     require(locked(), "Current slice still active");
+    //     require(!creditLine.isLate(), "Creditline is late");
+    //     require(
+    //         creditLine.withinPrincipalGracePeriod(),
+    //         "Beyond principal grace period"
+    //     );
+    //     _initializeNextSlice(_fundableAt);
+    //     emit SliceCreated(address(this), poolSlices.length.sub(1));
+    // }
 
     /**
      * @notice Triggers an assessment of the creditline and the applies the payments according the tranche waterfall
@@ -440,14 +440,14 @@ contract TranchedPool is
         _assess();
     }
 
-    // /**
-    //  * @notice Migrates to a new Doberman config address
-    //  */
-    // function updateDobermanConfig() external onlyAdmin {
-    //   config = DobermanConfig(config.configAddress());
-    //   creditLine.updateDobermanConfig();
-    //   emit DobermanConfigUpdated(msg.sender, address(config));
-    // }
+    /**
+     * @notice Migrates to a new Doberman config address
+     */
+    function updateDobermanConfig() external onlyAdmin {
+      config = DobermanConfig(config.configAddress());
+      creditLine.updateDobermanConfig();
+      emit DobermanConfigUpdated(msg.sender, address(config));
+    }
 
     /**
      * @notice Pauses the pool and sweeps any remaining funds to the treasury reserve.

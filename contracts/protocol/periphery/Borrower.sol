@@ -256,22 +256,22 @@ contract Borrower is BaseUpgradeablePausable, BaseRelayRecipient, IBorrower {
         pool.assess();
     }
 
-    function transferFrom(
-        address erc20,
-        address sender,
-        address recipient,
-        uint256 amount
-    ) internal {
-        bytes memory _data;
-        // Do a low-level invoke on this transfer, since Tether fails if we use the normal IERC20 interface
-        _data = abi.encodeWithSignature(
-            "transferFrom(address,address,uint256)",
-            sender,
-            recipient,
-            amount
-        );
-        invoke(address(erc20), _data);
-    }
+    // function transferFrom(
+    //     address erc20,
+    //     address sender,
+    //     address recipient,
+    //     uint256 amount
+    // ) internal {
+    //     bytes memory _data;
+    //     // Do a low-level invoke on this transfer, since Tether fails if we use the normal IERC20 interface
+    //     _data = abi.encodeWithSignature(
+    //         "transferFrom(address,address,uint256)",
+    //         sender,
+    //         recipient,
+    //         amount
+    //     );
+    //     invoke(address(erc20), _data);
+    // }
 
     // function swapOnOneInch(
     //   address fromToken,
@@ -324,13 +324,13 @@ contract Borrower is BaseUpgradeablePausable, BaseRelayRecipient, IBorrower {
         return _res;
     }
 
-    function toUint256(
-        bytes memory _bytes
-    ) internal pure returns (uint256 value) {
-        assembly {
-            value := mload(add(_bytes, 0x20))
-        }
-    }
+    // function toUint256(
+    //     bytes memory _bytes
+    // ) internal pure returns (uint256 value) {
+    //     assembly {
+    //         value := mload(add(_bytes, 0x20))
+    //     }
+    // }
 
     // OpenZeppelin contracts come with support for GSN _msgSender() (which just defaults to msg.sender)
     // Since there are two different versions of the function in the hierarchy, we need to instruct solidity to

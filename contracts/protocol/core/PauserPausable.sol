@@ -15,10 +15,10 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 contract PauserPausable is AccessControlUpgradeable, PausableUpgradeable {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
-    // solhint-disable-next-line func-name-mixedcase
-    function __PauserPausable__init() public initializer {
-        __Pausable_init_unchained();
-    }
+    // // solhint-disable-next-line func-name-mixedcase
+    // function __PauserPausable__init() public initializer {
+    //     __Pausable_init_unchained();
+    // }
 
     /**
      * @dev Pauses all functions guarded by Pause

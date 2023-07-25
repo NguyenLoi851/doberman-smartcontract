@@ -53,27 +53,27 @@ library Accountant {
         return (interestAccrued, principalAccrued);
     }
 
-    function calculateInterestAndPrincipalAccruedOverPeriod(
-        CreditLine cl,
-        uint256 balance,
-        uint256 startTime,
-        uint256 endTime,
-        uint256 lateFeeGracePeriod
-    ) public view returns (uint256, uint256) {
-        uint256 interestAccrued = calculateInterestAccruedOverPeriod(
-            cl,
-            balance,
-            startTime,
-            endTime,
-            lateFeeGracePeriod
-        );
-        uint256 principalAccrued = calculatePrincipalAccrued(
-            cl,
-            balance,
-            endTime
-        );
-        return (interestAccrued, principalAccrued);
-    }
+    // function calculateInterestAndPrincipalAccruedOverPeriod(
+    //     CreditLine cl,
+    //     uint256 balance,
+    //     uint256 startTime,
+    //     uint256 endTime,
+    //     uint256 lateFeeGracePeriod
+    // ) public view returns (uint256, uint256) {
+    //     uint256 interestAccrued = calculateInterestAccruedOverPeriod(
+    //         cl,
+    //         balance,
+    //         startTime,
+    //         endTime,
+    //         lateFeeGracePeriod
+    //     );
+    //     uint256 principalAccrued = calculatePrincipalAccrued(
+    //         cl,
+    //         balance,
+    //         endTime
+    //     );
+    //     return (interestAccrued, principalAccrued);
+    // }
 
     function calculatePrincipalAccrued(
         ICreditLine cl,
@@ -92,89 +92,89 @@ library Accountant {
         }
     }
 
-    function calculateWritedownFor(
-        ICreditLine cl,
-        uint256 timestamp,
-        uint256 gracePeriodInDays,
-        uint256 maxDaysLate
-    ) public view returns (uint256, uint256) {
-        return
-            calculateWritedownForPrincipal(
-                cl,
-                cl.balance(),
-                timestamp,
-                gracePeriodInDays,
-                maxDaysLate
-            );
-    }
+    // function calculateWritedownFor(
+    //     ICreditLine cl,
+    //     uint256 timestamp,
+    //     uint256 gracePeriodInDays,
+    //     uint256 maxDaysLate
+    // ) public view returns (uint256, uint256) {
+    //     return
+    //         calculateWritedownForPrincipal(
+    //             cl,
+    //             cl.balance(),
+    //             timestamp,
+    //             gracePeriodInDays,
+    //             maxDaysLate
+    //         );
+    // }
 
-    function calculateWritedownForPrincipal(
-        ICreditLine cl,
-        uint256 principal,
-        uint256 timestamp,
-        uint256 gracePeriodInDays,
-        uint256 maxDaysLate
-    ) public view returns (uint256, uint256) {
-        FixedPoint.Unsigned
-            memory amountOwedPerDay = calculateAmountOwedForOneDay(cl);
-        if (amountOwedPerDay.isEqual(0)) {
-            return (0, 0);
-        }
-        FixedPoint.Unsigned memory fpGracePeriod = FixedPoint.fromUnscaledUint(
-            gracePeriodInDays
-        );
-        FixedPoint.Unsigned memory daysLate;
+    // function calculateWritedownForPrincipal(
+    //     ICreditLine cl,
+    //     uint256 principal,
+    //     uint256 timestamp,
+    //     uint256 gracePeriodInDays,
+    //     uint256 maxDaysLate
+    // ) public view returns (uint256, uint256) {
+    //     FixedPoint.Unsigned
+    //         memory amountOwedPerDay = calculateAmountOwedForOneDay(cl);
+    //     if (amountOwedPerDay.isEqual(0)) {
+    //         return (0, 0);
+    //     }
+    //     FixedPoint.Unsigned memory fpGracePeriod = FixedPoint.fromUnscaledUint(
+    //         gracePeriodInDays
+    //     );
+    //     FixedPoint.Unsigned memory daysLate;
 
-        // Excel math: =min(1,max(0,periods_late_in_days-graceperiod_in_days)/MAX_ALLOWED_DAYS_LATE) grace_period = 30,
-        // Before the term end date, we use the interestOwed to calculate the periods late. However, after the loan term
-        // has ended, since the interest is a much smaller fraction of the principal, we cannot reliably use interest to
-        // calculate the periods later.
-        uint256 totalOwed = cl.interestOwed().add(cl.principalOwed());
-        daysLate = FixedPoint.fromUnscaledUint(totalOwed).div(amountOwedPerDay);
-        if (timestamp > cl.termEndTime()) {
-            uint256 secondsLate = timestamp.sub(cl.termEndTime());
-            daysLate = daysLate.add(
-                FixedPoint.fromUnscaledUint(secondsLate).div(SECONDS_PER_DAY)
-            );
-        }
+    //     // Excel math: =min(1,max(0,periods_late_in_days-graceperiod_in_days)/MAX_ALLOWED_DAYS_LATE) grace_period = 30,
+    //     // Before the term end date, we use the interestOwed to calculate the periods late. However, after the loan term
+    //     // has ended, since the interest is a much smaller fraction of the principal, we cannot reliably use interest to
+    //     // calculate the periods later.
+    //     uint256 totalOwed = cl.interestOwed().add(cl.principalOwed());
+    //     daysLate = FixedPoint.fromUnscaledUint(totalOwed).div(amountOwedPerDay);
+    //     if (timestamp > cl.termEndTime()) {
+    //         uint256 secondsLate = timestamp.sub(cl.termEndTime());
+    //         daysLate = daysLate.add(
+    //             FixedPoint.fromUnscaledUint(secondsLate).div(SECONDS_PER_DAY)
+    //         );
+    //     }
 
-        FixedPoint.Unsigned memory maxLate = FixedPoint.fromUnscaledUint(
-            maxDaysLate
-        );
-        FixedPoint.Unsigned memory writedownPercent;
-        if (daysLate.isLessThanOrEqual(fpGracePeriod)) {
-            // Within the grace period, we don't have to write down, so assume 0%
-            writedownPercent = FixedPoint.fromUnscaledUint(0);
-        } else {
-            writedownPercent = FixedPoint.min(
-                FixedPoint.fromUnscaledUint(1),
-                (daysLate.sub(fpGracePeriod)).div(maxLate)
-            );
-        }
+    //     FixedPoint.Unsigned memory maxLate = FixedPoint.fromUnscaledUint(
+    //         maxDaysLate
+    //     );
+    //     FixedPoint.Unsigned memory writedownPercent;
+    //     if (daysLate.isLessThanOrEqual(fpGracePeriod)) {
+    //         // Within the grace period, we don't have to write down, so assume 0%
+    //         writedownPercent = FixedPoint.fromUnscaledUint(0);
+    //     } else {
+    //         writedownPercent = FixedPoint.min(
+    //             FixedPoint.fromUnscaledUint(1),
+    //             (daysLate.sub(fpGracePeriod)).div(maxLate)
+    //         );
+    //     }
 
-        FixedPoint.Unsigned memory writedownAmount = writedownPercent
-            .mul(principal)
-            .div(FP_SCALING_FACTOR);
-        // This will return a number between 0-100 representing the write down percent with no decimals
-        uint256 unscaledWritedownPercent = writedownPercent
-            .mul(100)
-            .div(FP_SCALING_FACTOR)
-            .rawValue;
-        return (unscaledWritedownPercent, writedownAmount.rawValue);
-    }
+    //     FixedPoint.Unsigned memory writedownAmount = writedownPercent
+    //         .mul(principal)
+    //         .div(FP_SCALING_FACTOR);
+    //     // This will return a number between 0-100 representing the write down percent with no decimals
+    //     uint256 unscaledWritedownPercent = writedownPercent
+    //         .mul(100)
+    //         .div(FP_SCALING_FACTOR)
+    //         .rawValue;
+    //     return (unscaledWritedownPercent, writedownAmount.rawValue);
+    // }
 
-    function calculateAmountOwedForOneDay(
-        ICreditLine cl
-    ) public view returns (FixedPoint.Unsigned memory interestOwed) {
-        // Determine theoretical interestOwed for one full day
-        uint256 totalInterestPerYear = cl.balance().mul(cl.interestApr()).div(
-            INTEREST_DECIMALS
-        );
-        interestOwed = FixedPoint.fromUnscaledUint(totalInterestPerYear).div(
-            365
-        );
-        return interestOwed;
-    }
+    // function calculateAmountOwedForOneDay(
+    //     ICreditLine cl
+    // ) public view returns (FixedPoint.Unsigned memory interestOwed) {
+    //     // Determine theoretical interestOwed for one full day
+    //     uint256 totalInterestPerYear = cl.balance().mul(cl.interestApr()).div(
+    //         INTEREST_DECIMALS
+    //     );
+    //     interestOwed = FixedPoint.fromUnscaledUint(totalInterestPerYear).div(
+    //         365
+    //     );
+    //     return interestOwed;
+    // }
 
     function calculateInterestAccrued(
         CreditLine cl,

@@ -161,19 +161,19 @@ contract UniqueIdentity is ERC1155PresetPauserUpgradeable, IUniqueIdentity {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
-    function _buildDomainSeparator() internal {
-        DOMAIN_SEPARATOR = keccak256(
-            abi.encode(
-                keccak256(
-                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                ),
-                keccak256(bytes(name())),
-                keccak256(bytes(version)),
-                block.chainid,
-                address(this)
-            )
-        );
-    }
+    // function _buildDomainSeparator() internal {
+    //     DOMAIN_SEPARATOR = keccak256(
+    //         abi.encode(
+    //             keccak256(
+    //                 "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+    //             ),
+    //             keccak256(bytes(name())),
+    //             keccak256(bytes(version)),
+    //             block.chainid,
+    //             address(this)
+    //         )
+    //     );
+    // }
 
     modifier onlySigner(
         address account,
@@ -183,9 +183,9 @@ contract UniqueIdentity is ERC1155PresetPauserUpgradeable, IUniqueIdentity {
     ) {
         require(block.timestamp < expiresAt, "Signature has expired");
 
-        if (DOMAIN_SEPARATOR == bytes32(0)) {
-            _buildDomainSeparator();
-        }
+        // if (DOMAIN_SEPARATOR == bytes32(0)) {
+        //     _buildDomainSeparator();
+        // }
 
         bytes32 digest = keccak256(
             abi.encodePacked(
